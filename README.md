@@ -16,6 +16,8 @@ While all functionality this tool currently provides is also available on the in
 This tool provides a quick and easy way to rename, recorder and merge voices from one or more backups.
 
 ## Usage
+![Screenshot](screenshot.png)
+
 Usage should be largely self-explanatory. To merge multiple X9A files, open each in a separate instance of the tool. You can then select and copy voices in one instance and paste them into the other.
 
 ## X9A file format
