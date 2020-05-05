@@ -12,8 +12,8 @@ Tool to inspect, edit and merge Yamaha CP88/CP73 backup files (.X9A)
 - Reset voices to their factory default
 - Compatible with firmware versions 1.20, 1.30, 1.31 (older or newer versions may work but are untested)
 
-While all functionality this tool currently provides is also available on the instrument itself, it is very tedious to make bigger customizations on the instrument directly.
-This tool provides a quick and easy way to rename, recorder and merge voices from one or more backups.
+While all functionality that this tool provides can already be performed on the instrument itself, it is inconvenient to make major changes there directly.
+This tool provides a faster way to rename, recorder and merge voices from one or more backups.
 
 ## Usage
 ![Screenshot](screenshot.png)
