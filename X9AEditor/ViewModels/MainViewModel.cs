@@ -1,4 +1,5 @@
-﻿using Ookii.Dialogs.Wpf;
+﻿using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,9 +20,9 @@ namespace X9AEditor.ViewModels
 
         public IList<VoiceViewModel> SelectedVoices { get; set; }
 
-        public RelayCommand<string> OpenCommand { get; }
+        public RelayCommand OpenCommand { get; }
         public RelayCommand SaveCommand { get; }
-        public RelayCommand<string> SaveAsCommand { get; }
+        public RelayCommand SaveAsCommand { get; }
         public RelayCommand CloseCommand { get; }
 
         public RelayCommand MoveUpCommand { get; }
@@ -52,9 +53,9 @@ namespace X9AEditor.ViewModels
             Voices = new ObservableCollection<VoiceViewModel>();
             SelectedVoices = Array.Empty<VoiceViewModel>();
 
-            OpenCommand = new RelayCommand<string>(ExecuteOpenCommand);
+            OpenCommand = new RelayCommand(ExecuteOpenCommand);
             SaveCommand = new RelayCommand(ExecuteSaveCommand, () => IsFileLoaded);
-            SaveAsCommand = new RelayCommand<string>(ExecuteSaveAsCommand, path => IsFileLoaded);
+            SaveAsCommand = new RelayCommand(ExecuteSaveAsCommand, () => IsFileLoaded);
             CloseCommand = new RelayCommand(ExecuteCloseCommand);
 
             MoveUpCommand = new RelayCommand(ExecuteMoveUpCommand, CanExecuteMoveUpCommand);
@@ -71,30 +72,19 @@ namespace X9AEditor.ViewModels
             AboutCommand = new RelayCommand(ExecuteAboutCommand);
         }
 
-        private X9aFile ParseX9A(string path)
+        private void ExecuteOpenCommand()
         {
-            X9aFile x9aFile;
+            OpenFileDialog openFileDialog = new OpenFileDialog();
 
-            byte[] data = File.ReadAllBytes(path);
-            using (MemoryStream memoryStream = new MemoryStream(data, false))
-                x9aFile = X9aFile.Parse(path);
+            openFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
 
-            // as a sanity check, we re-encode the parsed file and check that we end up with exactly the same bytes
-            // this should give us confidence that the file is in a supported format
-            byte[] data2;
-            using (MemoryStream memoryStream = new MemoryStream(data.Length))
-            {
-                x9aFile.Save(memoryStream);
-                data2 = memoryStream.ToArray();
-            }
+            if (openFileDialog.ShowDialog() != true)
+                return;
 
-            if (!data2.SequenceEqual(data))
-                throw new InvalidDataException("Re-encoded X9A is different from input");
-
-            return x9aFile;
+            LoadFile(openFileDialog.FileName);
         }
 
-        private void ExecuteOpenCommand(string path)
+        private void LoadFile(string path)
         {
             try
             {
@@ -124,18 +114,53 @@ namespace X9AEditor.ViewModels
                 Voices.Add(new VoiceViewModel((X9aFile.Voice)x9aFile.Voices[i].Clone(), (i / 8) + 1, (i % 8) + 1, this));
         }
 
-        private void ExecuteSaveCommand()
+        private X9aFile ParseX9A(string path)
         {
-            ExecuteSaveAsCommand(LoadedFilePath);          
+            X9aFile x9aFile;
+
+            byte[] data = File.ReadAllBytes(path);
+            using (MemoryStream memoryStream = new MemoryStream(data, false))
+                x9aFile = X9aFile.Parse(path);
+
+            // as a sanity check, we re-encode the parsed file and check that we end up with exactly the same bytes
+            // this should give us confidence that the file is in a supported format
+            byte[] data2;
+            using (MemoryStream memoryStream = new MemoryStream(data.Length))
+            {
+                x9aFile.Save(memoryStream);
+                data2 = memoryStream.ToArray();
+            }
+
+            if (!data2.SequenceEqual(data))
+                throw new InvalidDataException("Re-encoded X9A is different from input");
+
+            return x9aFile;
         }
 
-        private void ExecuteSaveAsCommand(string path)
+        private void ExecuteSaveCommand()
+        {
+            SaveFile(LoadedFilePath);
+        }
+
+        private void ExecuteSaveAsCommand()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            saveFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
+
+            if (saveFileDialog.ShowDialog() != true)
+                return;
+
+            SaveFile(saveFileDialog.FileName);
+        }
+
+        private void SaveFile(string path)
         {
             for (int i = 0; i < x9aFile.Voices.Length; i++)
                 x9aFile.Voices[i] = Voices[i].Voice;
 
             try
-            { 
+            {
                 x9aFile.Save(path);
             }
             catch

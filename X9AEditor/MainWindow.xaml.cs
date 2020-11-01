@@ -20,30 +20,6 @@ namespace X9AEditor
             DataContext = viewModel;
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            openFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
-
-            if (openFileDialog.ShowDialog(this) != true)
-                return;
-
-            viewModel.OpenCommand.Execute(openFileDialog.FileName);
-        }
-
-        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            saveFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
-
-            if (saveFileDialog.ShowDialog(this) != true)
-                return;
-
-            viewModel.SaveAsCommand.Execute(saveFileDialog.FileName);
-        }
-
         private void Window_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))

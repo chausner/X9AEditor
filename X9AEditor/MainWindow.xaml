@@ -16,10 +16,10 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
             <MenuItem Header="File">
-                <MenuItem Header="Open..." Click="MenuItem_Click"/>
+                <MenuItem Header="Open..." Command="{Binding OpenCommand}"/>
                 <Separator/>
                 <MenuItem Header="Save" Command="{Binding SaveCommand}"/>
-                <MenuItem Header="Save as..." Click="MenuItem_Click_1"/>
+                <MenuItem Header="Save as..." Command="{Binding SaveAsCommand}"/>
                 <Separator/>
                 <MenuItem Header="Close" Command="{Binding CloseCommand}"/>
             </MenuItem>
