@@ -71,8 +71,8 @@
                     <Setter Property="ContextMenu">
                         <Setter.Value>
                             <ContextMenu>
-                                <MenuItem Header="Copy" Command="{Binding MainViewModel.CopyCommand}"/>
-                                <MenuItem Header="Paste" Command="{Binding MainViewModel.PasteCommand}"/>
+                                <MenuItem Header="Copy" Command="{Binding MainViewModel.CopyCommand}" InputGestureText="Ctrl+C"/>
+                                <MenuItem Header="Paste" Command="{Binding MainViewModel.PasteCommand}" InputGestureText="Ctrl+V"/>
                                 <Separator/>
                                 <MenuItem Header="Move up" Command="{Binding MainViewModel.MoveUpCommand}"/>
                                 <MenuItem Header="Move down" Command="{Binding MainViewModel.MoveDownCommand}"/>
@@ -90,6 +90,10 @@
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
+            <DataGrid.InputBindings>
+                <KeyBinding Modifiers="Control" Key="C" Command="{Binding CopyCommand}" />
+                <KeyBinding Modifiers="Control" Key="V" Command="{Binding PasteCommand}" />
+            </DataGrid.InputBindings>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Live Set Page" Binding="{Binding LiveSetPage, Mode=OneWay}"/>
                 <DataGridTextColumn Header="Live Set Index" Binding="{Binding LiveSetIndex, Mode=OneWay}"/>
