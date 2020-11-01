@@ -13,7 +13,7 @@ namespace X9AEditor
 
         static FactorySetting()
         {
-            using (Stream stream = Application.GetResourceStream(new Uri(@"Assets\FactorySetting-1.31.X9A", UriKind.Relative)).Stream)
+            using (Stream stream = Application.GetResourceStream(new Uri(@"Assets\FactorySetting-1.40.X9A", UriKind.Relative)).Stream)
                 Instance = X9aFile.Parse(stream);
 
             InitSound = Instance.Voices.Last();
