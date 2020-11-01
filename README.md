@@ -1,6 +1,6 @@
 # X9A Editor
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/chausner/X9AEditor)](https://github.com/chausner/X9AEditor/releases/latest)
-[![license](https://img.shields.io/github/license/chausner/X9AEditor.svg)](LICENSE.md)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE.md)
 
 Tool to inspect, edit and merge Yamaha CP88/CP73 backup files (.X9A)
 
