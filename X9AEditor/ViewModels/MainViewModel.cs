@@ -291,7 +291,7 @@ namespace X9AEditor.ViewModels
 
         private void ExecuteGitHubCommand()
         {
-            Process.Start("https://github.com/chausner/X9AEditor");
+            OpenUrlInBrowser("https://github.com/chausner/X9AEditor");
         }
 
         private void ExecuteAboutCommand()
@@ -309,9 +309,16 @@ namespace X9AEditor.ViewModels
             taskDialog.AllowDialogCancellation = true;
             taskDialog.WindowTitle = "About X9A Editor";
             taskDialog.Buttons.Add(new TaskDialogButton(ButtonType.Ok));
-            taskDialog.HyperlinkClicked += (sender, e) => Process.Start(e.Href);            
+            taskDialog.HyperlinkClicked += (sender, e) => OpenUrlInBrowser(e.Href);            
 
             taskDialog.ShowDialog();
+        }
+
+        private void OpenUrlInBrowser(string url)
+        {
+            string escapedUrl = url.Replace("&", "^&");
+
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {escapedUrl}") { CreateNoWindow = true });
         }
     }
 }
