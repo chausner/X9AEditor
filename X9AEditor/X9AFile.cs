@@ -845,6 +845,7 @@ namespace X9AEditor
             public byte ReverbDepth;
             public byte AdvancedModeSwitchOnOff;
             public byte PModSpeed;
+            public TouchSensitivity TouchSensitivity;
 
             public byte PianoDamperResonance;
             public byte PianoDspOnOff;
@@ -871,7 +872,9 @@ namespace X9AEditor
             {
                 Section section = new Section();
 
-                binaryReader.ExpectBigEndianUInt32(0x15);
+                uint structLength = binaryReader.ReadBigEndianUInt32();
+                if (structLength != 0x15 && structLength != 0x17)
+                    throw new InvalidDataException();
                 section.VoiceCategory = binaryReader.ReadByte();
                 section.VoiceNumberCategory1 = binaryReader.ReadByte();
                 section.VoiceNumberCategory2 = binaryReader.ReadByte();
@@ -893,6 +896,8 @@ namespace X9AEditor
                 section.ReverbDepth = binaryReader.ReadByte();
                 section.AdvancedModeSwitchOnOff = binaryReader.ReadByte();
                 section.PModSpeed = binaryReader.ReadByte();
+                if (structLength == 0x17)
+                    section.TouchSensitivity = TouchSensitivity.Read(binaryReader);
 
                 binaryReader.ExpectBigEndianUInt32(0x14);
                 section.PianoDamperResonance = binaryReader.ReadByte();
@@ -921,7 +926,7 @@ namespace X9AEditor
 
             public void WriteTo(BinaryWriter binaryWriter)
             {
-                binaryWriter.WriteBigEndian(0x15U);
+                binaryWriter.WriteBigEndian(TouchSensitivity != null ? 0x17U : 0x15U);
                 binaryWriter.Write(VoiceCategory);
                 binaryWriter.Write(VoiceNumberCategory1);
                 binaryWriter.Write(VoiceNumberCategory2);
@@ -943,6 +948,8 @@ namespace X9AEditor
                 binaryWriter.Write(ReverbDepth);
                 binaryWriter.Write(AdvancedModeSwitchOnOff);
                 binaryWriter.Write(PModSpeed);
+                if (TouchSensitivity != null)
+                    TouchSensitivity.WriteTo(binaryWriter);
 
                 binaryWriter.WriteBigEndian(0x14U);
                 binaryWriter.Write(PianoDamperResonance);
@@ -996,6 +1003,29 @@ namespace X9AEditor
                 binaryWriter.Write(MidGain);
                 binaryWriter.Write(MidGainFrequency);
                 binaryWriter.Write(HighGain);
+            }
+        }
+
+        [Serializable]
+        public class TouchSensitivity
+        {
+            public byte Depth;
+            public byte Offset;
+
+            public static TouchSensitivity Read(BinaryReader binaryReader)
+            {
+                TouchSensitivity touchSensitivity = new TouchSensitivity();
+
+                touchSensitivity.Depth = binaryReader.ReadByte();
+                touchSensitivity.Offset = binaryReader.ReadByte();
+
+                return touchSensitivity;
+            }
+
+            public void WriteTo(BinaryWriter binaryWriter)
+            {
+                binaryWriter.Write(Depth);
+                binaryWriter.Write(Offset);
             }
         }
 

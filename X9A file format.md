@@ -143,7 +143,7 @@ For each section, the following two structures follow:
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
-| uint32    | length of structure, always 0x15                                      |
+| uint32    | length of structure, either 0x15 or 0x17                              |
 | uint8     | voice category (zero-based)                                           |
 | uint8     | voice number category 1 (zero-based)                                  |
 | uint8     | voice number category 2 (zero-based)                                  |
@@ -165,6 +165,13 @@ For each section, the following two structures follow:
 | uint8     | reverb depth                                                          |
 | uint8     | advanced mode switch on/off                                           |
 | uint8     | p.mod speed                                                           |
+
+Starting with firmware version 1.5, the following additional fields are present:
+
+| data type | field                                                                 |
+| --------- | --------------------------------------------------------------------- |
+| uint8     | touch sensitivity depth                                               |
+| uint8     | touch sensitivity offset                                              |
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
