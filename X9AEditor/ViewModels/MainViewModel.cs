@@ -302,7 +302,7 @@ namespace X9AEditor.ViewModels
             taskDialog.MainInstruction = "X9A Editor";
             taskDialog.Content = 
                 "Version " + Assembly.GetExecutingAssembly().GetName().Version + "\r\n" +
-                "Copyright © Christoph Hausner 2020\r\n" +
+                "Copyright © Christoph Hausner 2020, 2022\r\n" +
                 "<a href=\"https://github.com/chausner/X9AEditor\">https://github.com/chausner/X9AEditor</a>\r\n\r\n" +
                 "Uses parts of the <a href=\"http://www.famfamfam.com/lab/icons/silk/\">Silk icon set</a>.";
             taskDialog.EnableHyperlinks = true;
