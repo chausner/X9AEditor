@@ -12,7 +12,7 @@ There should be exactly one block of each type in the file and the order should 
 
 ## Encoding
 
-Unless noted otherwise, all numbers are stored in big-endian format. Strings are stored in an encoding identical to ASCII except that the backlash character (\\) is replaced by the Yen sign (¥).
+Unless noted otherwise, all numbers are stored in big-endian format. Strings are stored in an encoding identical to ASCII except that the backslash character (\\) is replaced by the Yen sign (¥).
 
 ## ELST block payload
 
