@@ -6,9 +6,9 @@ namespace X9AEditor
     class RelayCommand : ICommand
     {
         Action action;
-        Func<bool> canExecuteEvaluator;
+        Func<bool>? canExecuteEvaluator;
 
-        public RelayCommand(Action action, Func<bool> canExecuteEvaluator)
+        public RelayCommand(Action action, Func<bool>? canExecuteEvaluator)
         {
             this.action = action;
             this.canExecuteEvaluator = canExecuteEvaluator;
@@ -19,7 +19,7 @@ namespace X9AEditor
         {
         }
 
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
             if (canExecuteEvaluator == null)
                 return true;
@@ -27,12 +27,12 @@ namespace X9AEditor
                 return canExecuteEvaluator();
         }
 
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
             action();
         }
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
@@ -41,33 +41,33 @@ namespace X9AEditor
 
     class RelayCommand<T> : ICommand
     {
-        Action<T> action;
-        Func<T, bool> canExecuteEvaluator;
+        Action<T?> action;
+        Func<T?, bool>? canExecuteEvaluator;
 
-        public RelayCommand(Action<T> action, Func<T, bool> canExecuteEvaluator)
+        public RelayCommand(Action<T?> action, Func<T?, bool>? canExecuteEvaluator)
         {
             this.action = action;
             this.canExecuteEvaluator = canExecuteEvaluator;
         }
 
-        public RelayCommand(Action<T> action) : this(action, null)
+        public RelayCommand(Action<T?> action) : this(action, null)
         {
         }
 
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
             if (canExecuteEvaluator == null)
                 return true;
             else
-                return canExecuteEvaluator((T)parameter);
+                return canExecuteEvaluator((T?)parameter);
         }
 
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
-            action((T)parameter);
+            action((T?)parameter);
         }
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }

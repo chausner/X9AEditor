@@ -24,7 +24,7 @@ namespace X9AEditor
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
                 viewModel.OpenCommand.Execute(files[0]);
             }

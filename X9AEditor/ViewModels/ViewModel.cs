@@ -6,7 +6,7 @@ namespace X9AEditor.ViewModels
 {
     abstract class ViewModel : INotifyPropertyChanged
     {
-        protected void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        protected void SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {
             if (!EqualityComparer<T>.Default.Equals(field, value))
             {
@@ -20,6 +20,6 @@ namespace X9AEditor.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

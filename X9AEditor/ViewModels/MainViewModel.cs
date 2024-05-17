@@ -13,8 +13,8 @@ namespace X9AEditor.ViewModels
 {
     class MainViewModel : ViewModel
     {
-        string loadedFilePath;
-        X9aFile x9aFile;
+        string? loadedFilePath;
+        X9aFile? x9aFile;
 
         public ObservableCollection<VoiceViewModel> Voices { get; }
 
@@ -40,13 +40,13 @@ namespace X9AEditor.ViewModels
 
         private bool IsFileLoaded => x9aFile != null;
 
-        public string LoadedFilePath
+        public string? LoadedFilePath
         {
             get { return loadedFilePath; }
             set { SetProperty(ref loadedFilePath, value); }
         }
 
-        public X9aFile X9aFile => x9aFile;
+        public X9aFile? X9aFile => x9aFile;
 
         public MainViewModel()
         {
@@ -252,12 +252,12 @@ namespace X9AEditor.ViewModels
 
         private void ExecutePasteCommand()
         {
-            X9aFile.Voice[] voices = Clipboard.GetData("X9AVoice") as X9aFile.Voice[];
+            X9aFile.Voice[]? voices = Clipboard.GetData("X9AVoice") as X9aFile.Voice[];
 
             if (voices == null)
                 return;
 
-            VoiceViewModel firstSelectedVoice = SelectedVoices.OrderBy(voice => voice.Index).FirstOrDefault();
+            VoiceViewModel? firstSelectedVoice = SelectedVoices.OrderBy(voice => voice.Index).FirstOrDefault();
 
             if (firstSelectedVoice == null)
                 return;
