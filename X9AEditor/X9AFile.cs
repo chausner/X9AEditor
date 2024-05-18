@@ -21,7 +21,7 @@ namespace X9AEditor
             Header header = ParseHeader(binaryReader);
             Dictionary<string, CatalogueEntry> catalogue = ParseCatalogue(binaryReader, header.CatalogueSize);
 
-            if (!catalogue.Keys.SequenceEqual(new string[] { "ELST", "ESYS", "DLST", "DSYS" }))
+            if (!catalogue.Keys.SequenceEqual(["ELST", "ESYS", "DLST", "DSYS"]))
                 throw new InvalidDataException("Unexpected catalogue: " + string.Join(", ", catalogue.Keys));
 
             CatalogueEntry elst = catalogue["ELST"];
@@ -128,7 +128,7 @@ namespace X9AEditor
                 WriteEntrySystem(binaryWriter, entrySystemEntries);
 
                 catalogue["DLST"].Offset = (uint)binaryWriter.BaseStream.Position;
-                binaryWriter.Write("DLST".ToCharArray());
+                binaryWriter.Write("DLST".AsSpan());
                 using (WriteBlockLength(binaryWriter))
                 {
                     binaryWriter.WriteBigEndian((uint)Voices.Length);
@@ -137,7 +137,7 @@ namespace X9AEditor
                 }
 
                 catalogue["DSYS"].Offset = (uint)binaryWriter.BaseStream.Position;
-                binaryWriter.Write("DSYS".ToCharArray());
+                binaryWriter.Write("DSYS".AsSpan());
                 using (WriteBlockLength(binaryWriter))
                 {
                     binaryWriter.WriteBigEndian(1U);
@@ -165,9 +165,9 @@ namespace X9AEditor
 
         private void WriteHeader(BinaryWriter binaryWriter, Header header)
         {
-            binaryWriter.Write("YAMAHA-YSFC\0".ToCharArray());
+            binaryWriter.Write("YAMAHA-YSFC\0".AsSpan());
             binaryWriter.Write(0); // unknown
-            binaryWriter.Write("6.0.0\0".ToCharArray());
+            binaryWriter.Write("6.0.0\0".AsSpan());
             binaryWriter.Write(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
             binaryWriter.WriteBigEndian(header.CatalogueSize);
             binaryWriter.Write(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
@@ -195,7 +195,7 @@ namespace X9AEditor
         {
             foreach (CatalogueEntry entry in catalogue.Values)
             {
-                binaryWriter.Write(entry.ID.ToCharArray());
+                binaryWriter.Write(entry.ID.AsSpan());
                 binaryWriter.WriteBigEndian(entry.Offset);
             }
         }
@@ -243,14 +243,14 @@ namespace X9AEditor
 
         private void WriteEntryList(BinaryWriter binaryWriter, EntryListEntry[] entries)
         {
-            binaryWriter.Write("ELST".ToCharArray());
+            binaryWriter.Write("ELST".AsSpan());
             using (WriteBlockLength(binaryWriter))
             {
                 binaryWriter.WriteBigEndian((uint)entries.Length);
 
                 foreach (EntryListEntry entry in entries)
                 {
-                    binaryWriter.Write("Entr".ToCharArray());
+                    binaryWriter.Write("Entr".AsSpan());
                     using (WriteBlockLength(binaryWriter))
                     {
                         binaryWriter.WriteBigEndian(entry.DataSize);
@@ -304,14 +304,14 @@ namespace X9AEditor
 
         private void WriteEntrySystem(BinaryWriter binaryWriter, EntrySystemEntry[] entries)
         {
-            binaryWriter.Write("ESYS".ToCharArray());
+            binaryWriter.Write("ESYS".AsSpan());
             using (WriteBlockLength(binaryWriter))
             {
                 binaryWriter.WriteBigEndian((uint)entries.Length);
 
                 foreach (EntrySystemEntry entry in entries)
                 {
-                    binaryWriter.Write("Entr".ToCharArray());
+                    binaryWriter.Write("Entr".AsSpan());
                     using (WriteBlockLength(binaryWriter))
                     {
                         binaryWriter.WriteBigEndian(entry.DataSize);
@@ -338,7 +338,7 @@ namespace X9AEditor
 
         private void WriteDataSystem(BinaryWriter binaryWriter, SystemData systemData)
         {
-            binaryWriter.Write("Data".ToCharArray());
+            binaryWriter.Write("Data".AsSpan());
             binaryWriter.WriteBigEndian(DataSystemEntryPadSize);
 
             long startPosition = binaryWriter.BaseStream.Position;
@@ -363,7 +363,7 @@ namespace X9AEditor
 
         private void WriteDataList(BinaryWriter binaryWriter, Voice voice)
         {
-            binaryWriter.Write("Data".ToCharArray());
+            binaryWriter.Write("Data".AsSpan());
             binaryWriter.WriteBigEndian(DataListEntryPadSize);
 
             long startPosition = binaryWriter.BaseStream.Position;
@@ -415,24 +415,24 @@ namespace X9AEditor
             }
         }
 
-        private class Header
+        private record Header
         {
             public uint CatalogueSize;
         }
 
-        private class CatalogueEntry
+        private record CatalogueEntry
         {
             public string ID;
             public uint Offset;
         }
 
-        private class EntrySystemEntry
+        private record EntrySystemEntry
         {
             public uint DataOffset;
             public uint DataSize;
         }
 
-        private class EntryListEntry
+        private record EntryListEntry
         {
             public uint DataOffset;
             public uint DataSize;
@@ -441,7 +441,6 @@ namespace X9AEditor
             public string EntryName;
         }
 
-        [Serializable]
         public class Voice : ICloneable
         {
             public string Name;
@@ -460,13 +459,13 @@ namespace X9AEditor
             public byte FC2Assign;
             public byte FC2LimitLow;
             public byte FC2LimitHigh;
-            public LiveSetEQ LiveSetEQ;
+            public LiveSetEQ? LiveSetEQ;
 
             public Delay Delay;
             public Reverb Reverb;
             public MasterKeyboardZone[] MasterKeyboardZones;
             public Section[] Sections;
-            public LiveSetEQ2 LiveSetEQ2;
+            public LiveSetEQ2? LiveSetEQ2;
 
             public static Voice Read(BinaryReader binaryReader)
             {
@@ -541,7 +540,7 @@ namespace X9AEditor
                 if (Name.Length > 15)
                     throw new InvalidDataException("Maximum length of voice name is 15 characters");
                 binaryWriter.WriteBigEndian(0x10U);
-                binaryWriter.Write(Name.PadRight(16, '\0').ToCharArray());
+                binaryWriter.Write(Name.PadRight(16, '\0').AsSpan());
 
                 uint structLength = LiveSetEQ != null ? 0x17U : 0x11U;
                 binaryWriter.WriteBigEndian(structLength);
@@ -627,8 +626,7 @@ namespace X9AEditor
             }
         }
 
-        [Serializable]
-        public class LiveSetEQ
+        public record LiveSetEQ
         {
             public byte LiveSetEQModeSwitch;
             public byte LiveSetEQOnOff;
@@ -662,8 +660,7 @@ namespace X9AEditor
             }
         }
 
-        [Serializable]
-        public class Delay
+        public record Delay
         {
             public byte DelayOnOff;
             public byte DelayType;
@@ -702,8 +699,7 @@ namespace X9AEditor
             }
         }
 
-        [Serializable]
-        public class Reverb
+        public record Reverb
         {
             public byte ReverbOnOff;
             public byte ReverbTime;
@@ -736,8 +732,7 @@ namespace X9AEditor
             }
         }
 
-        [Serializable]
-        public class MasterKeyboardZone
+        public record MasterKeyboardZone
         {
             public byte ZoneSwitchOnOff;
             public byte TxChannel;
@@ -821,8 +816,7 @@ namespace X9AEditor
             }
         }
 
-        [Serializable]
-        public class Section
+        public record Section
         {
             public byte VoiceCategory;
             public byte VoiceNumberCategory1;
@@ -845,8 +839,8 @@ namespace X9AEditor
             public byte ReverbDepth;
             public byte AdvancedModeSwitchOnOff;
             public byte PModSpeed;
-            public SectionExtension Extension;
-            public SectionExtension2 Extension2;
+            public SectionExtension? Extension;
+            public SectionExtension2? Extension2;
 
             public byte PianoDamperResonance;
             public byte PianoDspOnOff;
@@ -987,8 +981,7 @@ namespace X9AEditor
             }
         }
 
-        [Serializable]
-        public class SectionExtension
+        public record SectionExtension
         {
             public byte TouchSensitivityDepth;
             public byte TouchSensitivityOffset;
@@ -1010,8 +1003,7 @@ namespace X9AEditor
             }
         }
 
-        [Serializable]
-        public class SectionExtension2
+        public record SectionExtension2
         {
             public byte SoundMonoPoly;
             public byte SoundPortamentoSwitch;
@@ -1042,11 +1034,10 @@ namespace X9AEditor
                 binaryWriter.Write(SoundPortamentoMode);
                 binaryWriter.Write(SoundPortamentoTimeMode);
                 binaryWriter.Write(SoundPan);
-        }
+            }
         }
 
-        [Serializable]
-        public class LiveSetEQ2
+        public record LiveSetEQ2
         {
             public byte LowGain;
             public byte MidGain;
@@ -1076,7 +1067,7 @@ namespace X9AEditor
             }
         }
 
-        public class SystemData
+        public record SystemData
         {
             public byte AutoPowerOff;
             public byte KeyboardOctave;
@@ -1222,9 +1213,7 @@ namespace X9AEditor
                 char[] charsTmp = new char[charCount];
                 Array.Copy(chars, charIndex, charsTmp, 0, charCount);
 
-                for (int i = 0; i < charsTmp.Length; i++)
-                    if (charsTmp[i] == '¥')
-                        charsTmp[i] = '\\';
+                charsTmp.AsSpan().Replace('¥', '\\');
 
                 int byteCount = Encoding.ASCII.GetBytes(charsTmp, 0, charCount, bytes, byteIndex);
                 return byteCount;
@@ -1239,9 +1228,7 @@ namespace X9AEditor
             {
                 int charCount = Encoding.ASCII.GetChars(bytes, byteIndex, byteCount, chars, charIndex);
 
-                for (int i = charIndex; i < charIndex + charCount; i++)
-                    if (chars[i] == '\\')
-                        chars[i] = '¥';
+                chars.AsSpan(charIndex, charCount).Replace('\\', '¥');
 
                 return charCount;
             }
