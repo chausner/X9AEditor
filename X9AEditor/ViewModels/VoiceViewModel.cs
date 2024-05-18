@@ -26,14 +26,24 @@ class VoiceViewModel : ViewModel
     public int LiveSetPage
     {
         get => liveSetPage;
-        set => SetProperty(ref liveSetPage, value);
+        set
+        {
+            SetProperty(ref liveSetPage, value);
+            InvokePropertyChanged(nameof(IsChanged));
+            InvokePropertyChanged(nameof(IsFactorySetting));
+        }
     }
 
     int liveSetIndex;
     public int LiveSetIndex
     {
         get => liveSetIndex;
-        set => SetProperty(ref liveSetIndex, value);
+        set
+        {
+            SetProperty(ref liveSetIndex, value);
+            InvokePropertyChanged(nameof(IsChanged));
+            InvokePropertyChanged(nameof(IsFactorySetting));
+        }
     }
 
     readonly MainViewModel mainViewModel;
