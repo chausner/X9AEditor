@@ -441,6 +441,7 @@ class X9aFile
         public string EntryName;
     }
 
+    [Serializable]
     public class Voice : ICloneable
     {
         public string Name;
@@ -624,6 +625,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record LiveSetEQ
     {
         public byte LiveSetEQModeSwitch;
@@ -658,6 +660,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record Delay
     {
         public byte DelayOnOff;
@@ -697,6 +700,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record Reverb
     {
         public byte ReverbOnOff;
@@ -730,6 +734,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record MasterKeyboardZone
     {
         public byte ZoneSwitchOnOff;
@@ -814,6 +819,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record Section
     {
         public byte VoiceCategory;
@@ -977,6 +983,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record SectionExtension
     {
         public byte TouchSensitivityDepth;
@@ -999,6 +1006,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record SectionExtension2
     {
         public byte SoundMonoPoly;
@@ -1033,6 +1041,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record LiveSetEQ2
     {
         public byte LowGain;
@@ -1063,6 +1072,7 @@ class X9aFile
         }
     }
 
+    [Serializable]
     public record SystemData
     {
         public byte AutoPowerOff;
