@@ -143,7 +143,7 @@ For each section, the following two structures follow:
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
-| uint32    | length of structure, either 0x15 or 0x17                              |
+| uint32    | length of structure, either 0x15, 0x17 or 0x1D                        |
 | uint8     | voice category (zero-based)                                           |
 | uint8     | voice number category 1 (zero-based)                                  |
 | uint8     | voice number category 2 (zero-based)                                  |
@@ -172,6 +172,17 @@ Starting with firmware version 1.5, the following additional fields are present:
 | --------- | --------------------------------------------------------------------- |
 | uint8     | touch sensitivity depth                                               |
 | uint8     | touch sensitivity offset                                              |
+
+Starting with firmware version 1.6, the following additional fields are present:
+
+| data type | field                                                                 |
+| --------- | --------------------------------------------------------------------- |
+| uint8     | mono/poly (0: Mono, 1: Poly)                                           |
+| uint8     | portamento switch                                                     |
+| uint8     | portamento time                                                       |
+| uint8     | portamento mode (0: Fingered, 1: Full-time)                           |
+| uint8     | portamento time mode (0: Rate, 1: Time)                               |
+| uint8     | pan (64: C)                                                           |
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
