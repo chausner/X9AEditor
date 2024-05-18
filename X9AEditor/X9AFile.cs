@@ -604,10 +604,11 @@ class X9aFile
             using (BinaryWriter binaryWriter1 = new BinaryWriter(memoryStream1))
             using (BinaryWriter binaryWriter2 = new BinaryWriter(memoryStream2))
             {
-                var tmp1 = (Voice)Clone();
-                tmp1.LiveSetEQ2 = null;
+                var tmp1 = (Voice)Clone();              
                 var tmp2 = (Voice)other.Clone();
-                tmp2.LiveSetEQ2 = null;
+
+                Normalize(tmp1);
+                Normalize(tmp2);
 
                 tmp1.WriteTo(binaryWriter1);
                 tmp2.WriteTo(binaryWriter2);
@@ -616,6 +617,22 @@ class X9aFile
                 byte[] b2 = memoryStream2.ToArray();
 
                 return b1.SequenceEqual(b2);
+            }
+
+            void Normalize(Voice voice)
+            {
+                if (voice.LiveSetEQ == null)
+                    voice.LiveSetEQ = LiveSetEQ.Default;
+                if (voice.LiveSetEQ2 == null)
+                    voice.LiveSetEQ2 = LiveSetEQ2.Default;
+
+                foreach (Section section in voice.Sections)
+                {
+                    if (section.Extension == null)
+                        section.Extension = SectionExtension.Default;
+                    if (section.Extension2 == null)
+                        section.Extension2 = SectionExtension2.Default;
+                }
             }
         }
 
@@ -658,6 +675,16 @@ class X9aFile
             binaryWriter.Write(MidGainFrequency);
             binaryWriter.Write(HighGain);
         }
+
+        public static LiveSetEQ Default => new()
+        {
+            LiveSetEQModeSwitch = 0,
+            LiveSetEQOnOff = 0,
+            LowGain = 64,
+            MidGain = 64,
+            MidGainFrequency = 28,
+            HighGain = 64
+        };
     }
 
     [Serializable]
@@ -1004,6 +1031,12 @@ class X9aFile
             binaryWriter.Write(TouchSensitivityDepth);
             binaryWriter.Write(TouchSensitivityOffset);
         }
+
+        public static SectionExtension Default => new()
+        {
+            TouchSensitivityDepth = 64,
+            TouchSensitivityOffset = 64
+        };
     }
 
     [Serializable]
@@ -1039,6 +1072,16 @@ class X9aFile
             binaryWriter.Write(SoundPortamentoTimeMode);
             binaryWriter.Write(SoundPan);
         }
+
+        public static SectionExtension2 Default => new()
+        {
+            SoundMonoPoly = 1,
+            SoundPortamentoSwitch = 0,
+            SoundPortamentoTime = 64,
+            SoundPortamentoMode = 1,
+            SoundPortamentoTimeMode = 0,
+            SoundPan = 64
+        };
     }
 
     [Serializable]
@@ -1070,7 +1113,15 @@ class X9aFile
             binaryWriter.Write(MidGainFrequency);
             binaryWriter.Write(HighGain);
         }
-    }
+
+        public static LiveSetEQ2 Default => new()
+        {
+            LowGain = 64,
+            MidGain = 64,
+            MidGainFrequency = 64,
+            HighGain = 64
+        };
+}
 
     [Serializable]
     public record SystemData
