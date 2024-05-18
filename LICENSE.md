@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2020 Christoph Hausner
+Copyright (c) 2020, 2022, 2024 Christoph Hausner
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ SOFTWARE.
 
 License agreement for Ookii.Dialogs.
 
-Copyright © Sven Groot (Ookii.org) 2009
+Copyright ï¿½ Sven Groot (Ookii.org) 2009
 All rights reserved.
 
 
