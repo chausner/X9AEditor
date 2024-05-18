@@ -5,23 +5,7 @@ namespace X9AEditor.ViewModels;
 
 class VoiceViewModel : ViewModel
 {
-    readonly MainViewModel mainViewModel;
-
-    public MainViewModel MainViewModel => mainViewModel;
-
-    int liveSetPage;
-    public int LiveSetPage
-    {
-        get => liveSetPage;
-        set => SetProperty(ref liveSetPage, value);
-    }
-
-    int liveSetIndex;
-    public int LiveSetIndex
-    {
-        get => liveSetIndex;
-        set => SetProperty(ref liveSetIndex, value);
-    }
+    readonly X9aFile x9aFile;
 
     X9aFile.Voice voice;
 
@@ -38,16 +22,35 @@ class VoiceViewModel : ViewModel
         }
     }
 
+    int liveSetPage;
+    public int LiveSetPage
+    {
+        get => liveSetPage;
+        set => SetProperty(ref liveSetPage, value);
+    }
+
+    int liveSetIndex;
+    public int LiveSetIndex
+    {
+        get => liveSetIndex;
+        set => SetProperty(ref liveSetIndex, value);
+    }
+
+    readonly MainViewModel mainViewModel;
+
+    public MainViewModel MainViewModel => mainViewModel;
+
     public RelayCommand UndoChangesCommand { get; }
     public RelayCommand ResetToFactorySettingCommand { get; }
     public RelayCommand InitializeCommand { get; }        
 
-    public VoiceViewModel(X9aFile.Voice voice, int liveSetPage, int liveSetIndex, MainViewModel mainViewModel)
+    public VoiceViewModel(X9aFile x9aFile, X9aFile.Voice voice, int liveSetPage, int liveSetIndex, MainViewModel mainViewModel)
     {
-        this.voice = voice;
-        this.mainViewModel = mainViewModel;
+        this.x9aFile = x9aFile;
+        this.voice = voice;        
         LiveSetPage = liveSetPage;
         LiveSetIndex = liveSetIndex;
+        this.mainViewModel = mainViewModel;
 
         UndoChangesCommand = new RelayCommand(ExecuteUndoChangesCommand);
         ResetToFactorySettingCommand = new RelayCommand(ExecuteResetToFactorySettingCommand);
@@ -77,7 +80,7 @@ class VoiceViewModel : ViewModel
 
     public bool IsInitSound => Voice.Equals(FactorySetting.InitSound);
 
-    public bool IsChanged => !Voice.Equals(mainViewModel.X9aFile.Voices[Index]);
+    public bool IsChanged => !Voice.Equals(x9aFile.Voices[Index]);
 
     public bool IsFactorySetting => Voice.Equals(FactorySetting.Instance.Voices[Index]);
 
@@ -85,7 +88,7 @@ class VoiceViewModel : ViewModel
 
     private void ExecuteUndoChangesCommand()
     {
-        Voice = (X9aFile.Voice)mainViewModel.X9aFile.Voices[Index].Clone();
+        Voice = (X9aFile.Voice)x9aFile.Voices[Index].Clone();
     }
 
     private void ExecuteResetToFactorySettingCommand()

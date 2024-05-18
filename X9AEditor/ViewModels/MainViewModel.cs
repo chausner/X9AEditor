@@ -111,7 +111,7 @@ class MainViewModel : ViewModel
 
         Voices.Clear();
         for (int i = 0; i < x9aFile.Voices.Length; i++)
-            Voices.Add(new VoiceViewModel((X9aFile.Voice)x9aFile.Voices[i].Clone(), (i / 8) + 1, (i % 8) + 1, this));
+            Voices.Add(new VoiceViewModel(x9aFile, (X9aFile.Voice)x9aFile.Voices[i].Clone(), (i / 8) + 1, (i % 8) + 1, this));
     }
 
     private X9aFile ParseX9A(string path)

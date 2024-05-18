@@ -7,9 +7,9 @@ namespace X9AEditor;
 
 static class FactorySetting
 {
-    public static X9aFile Instance;
+    public static X9aFile Instance { get; }
 
-    public static X9aFile.Voice InitSound;
+    public static X9aFile.Voice InitSound { get; }
 
     static FactorySetting()
     {
