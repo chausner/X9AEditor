@@ -1,11 +1,10 @@
 ﻿using System.Windows;
 
-namespace X9AEditor
+namespace X9AEditor;
+
+/// <summary>
+/// Interaktionslogik für "App.xaml"
+/// </summary>
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaktionslogik für "App.xaml"
-    /// </summary>
-    public partial class App : Application
-    {
-    }
 }

@@ -1,76 +1,75 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace X9AEditor
+namespace X9AEditor;
+
+class RelayCommand : ICommand
 {
-    class RelayCommand : ICommand
+    readonly Action action;
+    readonly Func<bool>? canExecuteEvaluator;
+
+    public RelayCommand(Action action, Func<bool>? canExecuteEvaluator)
     {
-        Action action;
-        Func<bool>? canExecuteEvaluator;
-
-        public RelayCommand(Action action, Func<bool>? canExecuteEvaluator)
-        {
-            this.action = action;
-            this.canExecuteEvaluator = canExecuteEvaluator;
-        }
-
-        public RelayCommand(Action action)
-            : this(action, null)
-        {
-        }
-
-        public bool CanExecute(object? parameter)
-        {
-            if (canExecuteEvaluator == null)
-                return true;
-            else
-                return canExecuteEvaluator();
-        }
-
-        public void Execute(object? parameter)
-        {
-            action();
-        }
-
-        public event EventHandler? CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
-        }
+        this.action = action;
+        this.canExecuteEvaluator = canExecuteEvaluator;
     }
 
-    class RelayCommand<T> : ICommand
+    public RelayCommand(Action action)
+        : this(action, null)
     {
-        Action<T?> action;
-        Func<T?, bool>? canExecuteEvaluator;
+    }
 
-        public RelayCommand(Action<T?> action, Func<T?, bool>? canExecuteEvaluator)
-        {
-            this.action = action;
-            this.canExecuteEvaluator = canExecuteEvaluator;
-        }
+    public bool CanExecute(object? parameter)
+    {
+        if (canExecuteEvaluator == null)
+            return true;
+        else
+            return canExecuteEvaluator();
+    }
 
-        public RelayCommand(Action<T?> action) : this(action, null)
-        {
-        }
+    public void Execute(object? parameter)
+    {
+        action();
+    }
 
-        public bool CanExecute(object? parameter)
-        {
-            if (canExecuteEvaluator == null)
-                return true;
-            else
-                return canExecuteEvaluator((T?)parameter);
-        }
+    public event EventHandler? CanExecuteChanged
+    {
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
+    }
+}
 
-        public void Execute(object? parameter)
-        {
-            action((T?)parameter);
-        }
+class RelayCommand<T> : ICommand
+{
+    readonly Action<T?> action;
+    readonly Func<T?, bool>? canExecuteEvaluator;
 
-        public event EventHandler? CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
-        }
+    public RelayCommand(Action<T?> action, Func<T?, bool>? canExecuteEvaluator)
+    {
+        this.action = action;
+        this.canExecuteEvaluator = canExecuteEvaluator;
+    }
+
+    public RelayCommand(Action<T?> action) : this(action, null)
+    {
+    }
+
+    public bool CanExecute(object? parameter)
+    {
+        if (canExecuteEvaluator == null)
+            return true;
+        else
+            return canExecuteEvaluator((T?)parameter);
+    }
+
+    public void Execute(object? parameter)
+    {
+        action((T?)parameter);
+    }
+
+    public event EventHandler? CanExecuteChanged
+    {
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
     }
 }

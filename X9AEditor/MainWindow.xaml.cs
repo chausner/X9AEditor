@@ -4,50 +4,49 @@ using System.Windows;
 using System.Windows.Controls;
 using X9AEditor.ViewModels;
 
-namespace X9AEditor
+namespace X9AEditor;
+
+/// <summary>
+/// Interaktionslogik für MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    readonly MainViewModel viewModel = new MainViewModel();
+
+    public MainWindow()
     {
-        MainViewModel viewModel = new MainViewModel();
+        InitializeComponent();
 
-        public MainWindow()
+        DataContext = viewModel;
+    }
+
+    private void Window_Drop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            InitializeComponent();
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            DataContext = viewModel;
+            viewModel.OpenCommand.Execute(files[0]);
         }
+    }
 
-        private void Window_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+    private void Window_PreviewDragOver(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            e.Effects = DragDropEffects.Copy;
+        else
+            e.Effects = DragDropEffects.None;
 
-                viewModel.OpenCommand.Execute(files[0]);
-            }
-        }
+        e.Handled = true;
+    }
 
-        private void Window_PreviewDragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
+    private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        viewModel.SelectedVoices = dataGrid.SelectedItems.Cast<VoiceViewModel>().ToArray();
+    }
 
-            e.Handled = true;
-        }
-
-        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            viewModel.SelectedVoices = dataGrid.SelectedItems.Cast<VoiceViewModel>().ToArray();
-        }
-
-        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
-        {
-            ((ContextMenu)sender).DataContext = DataContext;
-        }
+    private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+    {
+        ((ContextMenu)sender).DataContext = DataContext;
     }
 }
