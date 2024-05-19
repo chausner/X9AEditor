@@ -201,7 +201,7 @@ class MainViewModel : ViewModel
             {
                 voice.LiveSetIndex = 8;
                 voice.LiveSetPage--;
-            }                
+            }
         }
     }
 
@@ -300,7 +300,7 @@ class MainViewModel : ViewModel
 
         taskDialog.MainIcon = TaskDialogIcon.Information;
         taskDialog.MainInstruction = "X9A Editor";
-        taskDialog.Content = 
+        taskDialog.Content =
             "Version " + Assembly.GetExecutingAssembly().GetName().Version + "\r\n" +
             "Copyright © Christoph Hausner 2020, 2022, 2024\r\n" +
             "<a href=\"https://github.com/chausner/X9AEditor\">https://github.com/chausner/X9AEditor</a>\r\n\r\n" +

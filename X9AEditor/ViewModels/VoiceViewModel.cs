@@ -57,7 +57,7 @@ class VoiceViewModel : ViewModel
     public VoiceViewModel(X9aFile x9aFile, X9aFile.Voice voice, int liveSetPage, int liveSetIndex, MainViewModel mainViewModel)
     {
         this.x9aFile = x9aFile;
-        this.voice = voice;        
+        this.voice = voice;
         LiveSetPage = liveSetPage;
         LiveSetIndex = liveSetIndex;
         this.mainViewModel = mainViewModel;

@@ -327,7 +327,7 @@ class X9aFile
     private SystemData ParseDataSystem(BinaryReader binaryReader)
     {
         SystemData systemData = SystemData.Read(binaryReader);
-        
+
         // padding
         byte[] padding = binaryReader.ReadBytes((int)(binaryReader.BaseStream.Length - binaryReader.BaseStream.Position));
         if (padding.Any(b => b != 0xFF))
@@ -604,7 +604,7 @@ class X9aFile
             using (BinaryWriter binaryWriter1 = new BinaryWriter(memoryStream1))
             using (BinaryWriter binaryWriter2 = new BinaryWriter(memoryStream2))
             {
-                var tmp1 = (Voice)Clone();              
+                var tmp1 = (Voice)Clone();
                 var tmp2 = (Voice)other.Clone();
 
                 Normalize(tmp1);
@@ -1121,7 +1121,7 @@ class X9aFile
             MidGainFrequency = 64,
             HighGain = 64
         };
-}
+    }
 
     [Serializable]
     public record SystemData
@@ -1300,4 +1300,4 @@ class X9aFile
             return Encoding.ASCII.GetMaxCharCount(byteCount);
         }
     }
-}    
+}
