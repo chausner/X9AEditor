@@ -22,17 +22,16 @@ public partial class MainWindow : Window
 
     private void Window_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data.GetData(DataFormats.FileDrop) as string[] is [var path])
         {
-            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-            viewModel.OpenCommand.Execute(files[0]);
+            viewModel.OpenCommand.Execute(path);
+            e.Handled = true;
         }
     }
 
     private void Window_PreviewDragOver(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data.GetData(DataFormats.FileDrop) as string[] is [var _])
             e.Effects = DragDropEffects.Copy;
         else
             e.Effects = DragDropEffects.None;
