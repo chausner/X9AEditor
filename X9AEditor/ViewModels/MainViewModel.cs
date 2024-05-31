@@ -20,7 +20,7 @@ class MainViewModel : ViewModel
 
     public IList<VoiceViewModel> SelectedVoices { get; set; }
 
-    public RelayCommand OpenCommand { get; }
+    public RelayCommand<string?> OpenCommand { get; }
     public RelayCommand SaveCommand { get; }
     public RelayCommand SaveAsCommand { get; }
     public RelayCommand CloseCommand { get; }
@@ -53,7 +53,7 @@ class MainViewModel : ViewModel
         Voices = new ObservableCollection<VoiceViewModel>();
         SelectedVoices = Array.Empty<VoiceViewModel>();
 
-        OpenCommand = new RelayCommand(ExecuteOpenCommand);
+        OpenCommand = new RelayCommand<string?>(ExecuteOpenCommand);
         SaveCommand = new RelayCommand(ExecuteSaveCommand, () => IsFileLoaded);
         SaveAsCommand = new RelayCommand(ExecuteSaveAsCommand, () => IsFileLoaded);
         CloseCommand = new RelayCommand(ExecuteCloseCommand);
@@ -72,16 +72,21 @@ class MainViewModel : ViewModel
         AboutCommand = new RelayCommand(ExecuteAboutCommand);
     }
 
-    private void ExecuteOpenCommand()
+    private void ExecuteOpenCommand(string? path)
     {
-        OpenFileDialog openFileDialog = new OpenFileDialog();
+        if (path == null)
+        {        
+            OpenFileDialog openFileDialog = new OpenFileDialog();
 
-        openFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
+            openFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
 
-        if (openFileDialog.ShowDialog() != true)
-            return;
+            if (openFileDialog.ShowDialog() != true)
+                return;
 
-        LoadFile(openFileDialog.FileName);
+            path = openFileDialog.FileName;
+        }
+
+        LoadFile(path);
     }
 
     private void LoadFile(string path)
