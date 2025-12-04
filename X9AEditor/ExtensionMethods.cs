@@ -22,45 +22,53 @@ internal static class ExtensionMethods
 
     public static void ExpectByte(this BinaryReader reader, byte expectedValue)
     {
-        if (reader.ReadByte() != expectedValue)
-            throw new InvalidDataException("Unexpected value read.");
+        byte value = reader.ReadByte();
+        if (value != expectedValue)
+            throw new InvalidDataException($"Unexpected value read: {value} (expected {expectedValue})");
     }
 
     public static void ExpectBytes(this BinaryReader reader, byte[] expectedValues)
     {
         byte[] values = reader.ReadBytes(expectedValues.Length);
         if (!values.SequenceEqual(expectedValues))
-            throw new InvalidDataException("Unexpected value read.");
+            throw new InvalidDataException($"Unexpected value read: {ToHexString(values)} (expected {ToHexString(expectedValues)})");
+
+        static string ToHexString(byte[] bytes) => string.Join("", bytes.Select(b => b.ToString("X2")));
     }
 
     public static void ExpectUInt16(this BinaryReader reader, ushort expectedValue)
     {
-        if (reader.ReadUInt16() != expectedValue)
-            throw new InvalidDataException("Unexpected value read.");
+        ushort value = reader.ReadUInt16();
+        if (value != expectedValue)
+            throw new InvalidDataException($"Unexpected value read: {value} (expected {expectedValue})");
     }
 
     public static void ExpectBigEndianUInt16(this BinaryReader reader, ushort expectedValue)
     {
-        if (reader.ReadBigEndianUInt16() != expectedValue)
-            throw new InvalidDataException("Unexpected value read.");
+        ushort value = reader.ReadBigEndianUInt16();
+        if (value != expectedValue)
+            throw new InvalidDataException($"Unexpected value read: {value} (expected {expectedValue})");
     }
 
     public static void ExpectUInt32(this BinaryReader reader, uint expectedValue)
     {
-        if (reader.ReadUInt32() != expectedValue)
-            throw new InvalidDataException("Unexpected value read.");
+        uint value = reader.ReadUInt32();
+        if (value != expectedValue)
+            throw new InvalidDataException($"Unexpected value read: {value} (expected {expectedValue})");
     }
 
     public static void ExpectBigEndianUInt32(this BinaryReader reader, uint expectedValue)
     {
-        if (reader.ReadBigEndianUInt32() != expectedValue)
-            throw new InvalidDataException("Unexpected value read.");
+        uint value = reader.ReadBigEndianUInt32();
+        if (value != expectedValue)
+            throw new InvalidDataException($"Unexpected value read: {value} (expected {expectedValue})");
     }
 
-    public static void ExpectString(this BinaryReader reader, string s)
+    public static void ExpectString(this BinaryReader reader, string expectedValue)
     {
-        if (new string(reader.ReadChars(s.Length)) != s)
-            throw new InvalidDataException("Unexpected value read.");
+        string value = reader.ReadString(expectedValue.Length);
+        if (value != expectedValue)
+            throw new InvalidDataException($"Unexpected value read: \"{value}\" (expected \"{expectedValue}\")");
     }
 
     public static ushort ReadBigEndianUInt16(this BinaryReader reader)
