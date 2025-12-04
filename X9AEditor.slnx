@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="LICENSE.md" />
+    <File Path="README.md" />
+    <File Path="X9A file format.md" />
+  </Folder>
+  <Project Path="X9AEditor/X9AEditor.csproj" />
+</Solution>
