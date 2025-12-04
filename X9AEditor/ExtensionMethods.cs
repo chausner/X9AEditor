@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -8,7 +9,10 @@ internal static class ExtensionMethods
 {
     public static string ReadString(this BinaryReader reader, int length)
     {
-        return new string(reader.ReadChars(length));
+        string value = new string(reader.ReadChars(length));
+        if (value.Length != length)
+            throw new EndOfStreamException("Could not read the expected number of characters from the stream.");
+        return value;
     }
 
     public static string ReadNullTerminatedString(this BinaryReader reader)
@@ -99,7 +103,7 @@ internal static class ExtensionMethods
 
     public static void WriteNullTerminatedString(this BinaryWriter writer, string s)
     {
-        writer.Write(s.ToCharArray());
-        writer.Write((byte)0x00);
+        writer.Write(s.AsSpan());
+        writer.Write('\0');
     }
 }
