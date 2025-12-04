@@ -76,7 +76,7 @@ class MainViewModel : ViewModel
     {
         if (path == null)
         {        
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            OpenFileDialog openFileDialog = new();
 
             openFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
 
@@ -97,7 +97,7 @@ class MainViewModel : ViewModel
         }
         catch (Exception ex)
         {
-            TaskDialog taskDialog = new TaskDialog();
+            TaskDialog taskDialog = new();
 
             taskDialog.MainIcon = TaskDialogIcon.Error;
             taskDialog.Content = "X9A Editor cannot read this file, most likely because it was created using an unsupported CP88/CP73 firmware version.\r\n\r\nPlease report this issue on <a href=\"https://github.com/chausner/X9AEditor\">GitHub</a>.";
@@ -124,13 +124,13 @@ class MainViewModel : ViewModel
         X9aFile x9aFile;
 
         byte[] data = File.ReadAllBytes(path);
-        using (MemoryStream memoryStream = new MemoryStream(data, false))
+        using (MemoryStream memoryStream = new(data, false))
             x9aFile = X9aFile.Parse(path);
 
         // as a sanity check, we re-encode the parsed file and check that we end up with exactly the same bytes
         // this should give us confidence that the file is in a supported format
         byte[] data2;
-        using (MemoryStream memoryStream = new MemoryStream(data.Length))
+        using (MemoryStream memoryStream = new(data.Length))
         {
             x9aFile.Save(memoryStream);
             data2 = memoryStream.ToArray();
@@ -149,7 +149,7 @@ class MainViewModel : ViewModel
 
     private void ExecuteSaveAsCommand()
     {
-        SaveFileDialog saveFileDialog = new SaveFileDialog();
+        SaveFileDialog saveFileDialog = new();
 
         saveFileDialog.Filter = "Yamaha CP88/CP73 X9A files (*.x9a)|*.x9a";
 
@@ -301,7 +301,7 @@ class MainViewModel : ViewModel
 
     private void ExecuteAboutCommand()
     {
-        TaskDialog taskDialog = new TaskDialog();
+        TaskDialog taskDialog = new();
 
         taskDialog.MainIcon = TaskDialogIcon.Information;
         taskDialog.MainInstruction = "X9A Editor";

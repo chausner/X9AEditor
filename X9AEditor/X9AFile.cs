@@ -38,8 +38,8 @@ class X9aFile
             binaryReader.BaseStream.Seek(dlst.Offset + entryListEntries[i].DataOffset + 8, SeekOrigin.Begin);
             byte[] data = binaryReader.ReadBytes((int)entryListEntries[i].DataSize);
 
-            using (MemoryStream memoryStream = new MemoryStream(data, false))
-            using (BinaryReader binaryReader2 = new BinaryReader(memoryStream, new YamahaEncoding()))
+            using (MemoryStream memoryStream = new(data, false))
+            using (BinaryReader binaryReader2 = new(memoryStream, new YamahaEncoding()))
                 Voices[i] = ParseDataList(binaryReader2);
 
             if (entryListEntries[i].LiveSetPage != i / 8)
@@ -60,8 +60,8 @@ class X9aFile
             binaryReader.BaseStream.Seek(dsys.Offset + entrySystemEntries[0].DataOffset + 8, SeekOrigin.Begin);
             byte[] data = binaryReader.ReadBytes((int)entrySystemEntries[0].DataSize);
 
-            using (MemoryStream memoryStream = new MemoryStream(data, false))
-            using (BinaryReader binaryReader2 = new BinaryReader(memoryStream, new YamahaEncoding()))
+            using (MemoryStream memoryStream = new(data, false))
+            using (BinaryReader binaryReader2 = new(memoryStream, new YamahaEncoding()))
                 System = ParseDataSystem(binaryReader2);
         }
     }
@@ -74,7 +74,7 @@ class X9aFile
 
     public static X9aFile Parse(Stream stream)
     {
-        using (BinaryReader binaryReader = new BinaryReader(stream, new YamahaEncoding(), true))
+        using (BinaryReader binaryReader = new(stream, new YamahaEncoding(), true))
             return new X9aFile(binaryReader);
     }
 
@@ -86,15 +86,17 @@ class X9aFile
 
     public void Save(Stream stream)
     {
-        using (BinaryWriter binaryWriter = new BinaryWriter(stream, new YamahaEncoding(), true))
+        using (BinaryWriter binaryWriter = new(stream, new YamahaEncoding(), true))
         {
-            Dictionary<string, CatalogueEntry> catalogue = new Dictionary<string, CatalogueEntry>();
-            catalogue["ELST"] = new CatalogueEntry() { ID = "ELST" };
-            catalogue["ESYS"] = new CatalogueEntry() { ID = "ESYS" };
-            catalogue["DLST"] = new CatalogueEntry() { ID = "DLST" };
-            catalogue["DSYS"] = new CatalogueEntry() { ID = "DSYS" };
+            Dictionary<string, CatalogueEntry> catalogue = new()
+            {
+                ["ELST"] = new CatalogueEntry() { ID = "ELST" },
+                ["ESYS"] = new CatalogueEntry() { ID = "ESYS" },
+                ["DLST"] = new CatalogueEntry() { ID = "DLST" },
+                ["DSYS"] = new CatalogueEntry() { ID = "DSYS" }
+            };
 
-            Header header = new Header() { CatalogueSize = (uint)(catalogue.Count * 8) };
+            Header header = new() { CatalogueSize = (uint)(catalogue.Count * 8) };
             WriteHeader(binaryWriter, header);
 
             long catalogueStart = binaryWriter.BaseStream.Position;
@@ -156,9 +158,9 @@ class X9aFile
         binaryReader.ExpectString("YAMAHA-YSFC\0");
         binaryReader.ExpectUInt32(0); // unknown
         binaryReader.ExpectString("6.0.0\0");
-        binaryReader.ExpectBytes(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+        binaryReader.ExpectBytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
         uint catalogueSize = binaryReader.ReadBigEndianUInt32();
-        binaryReader.ExpectBytes(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+        binaryReader.ExpectBytes([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
 
         return new Header { CatalogueSize = catalogueSize };
     }
@@ -168,15 +170,15 @@ class X9aFile
         binaryWriter.Write("YAMAHA-YSFC\0".AsSpan());
         binaryWriter.Write(0); // unknown
         binaryWriter.Write("6.0.0\0".AsSpan());
-        binaryWriter.Write(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+        binaryWriter.Write([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
         binaryWriter.WriteBigEndian(header.CatalogueSize);
-        binaryWriter.Write(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+        binaryWriter.Write([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
     }
 
     private Dictionary<string, CatalogueEntry> ParseCatalogue(BinaryReader binaryReader, uint catalogueSize)
     {
         uint numEntries = catalogueSize / 8;
-        Dictionary<string, CatalogueEntry> catalogue = new Dictionary<string, CatalogueEntry>((int)numEntries);
+        Dictionary<string, CatalogueEntry> catalogue = new((int)numEntries);
 
         for (uint i = 0; i < numEntries; i++)
         {
@@ -470,7 +472,7 @@ class X9aFile
 
         public static Voice Read(BinaryReader binaryReader)
         {
-            Voice voice = new Voice();
+            Voice voice = new();
 
             uint nameLength = binaryReader.ReadBigEndianUInt32();
             if (nameLength != 16)
@@ -599,10 +601,10 @@ class X9aFile
             if (other.Name != Name) // fast path
                 return false;
 
-            using (MemoryStream memoryStream1 = new MemoryStream())
-            using (MemoryStream memoryStream2 = new MemoryStream())
-            using (BinaryWriter binaryWriter1 = new BinaryWriter(memoryStream1))
-            using (BinaryWriter binaryWriter2 = new BinaryWriter(memoryStream2))
+            using (MemoryStream memoryStream1 = new())
+            using (MemoryStream memoryStream2 = new())
+            using (BinaryWriter binaryWriter1 = new(memoryStream1))
+            using (BinaryWriter binaryWriter2 = new(memoryStream2))
             {
                 var tmp1 = (Voice)Clone();
                 var tmp2 = (Voice)other.Clone();
@@ -654,7 +656,7 @@ class X9aFile
 
         public static LiveSetEQ Read(BinaryReader binaryReader)
         {
-            LiveSetEQ liveSetEQ = new LiveSetEQ();
+            LiveSetEQ liveSetEQ = new();
 
             liveSetEQ.LiveSetEQModeSwitch = binaryReader.ReadByte();
             liveSetEQ.LiveSetEQOnOff = binaryReader.ReadByte();
@@ -700,7 +702,7 @@ class X9aFile
 
         public static Delay Read(BinaryReader binaryReader)
         {
-            Delay delay = new Delay();
+            Delay delay = new();
 
             binaryReader.ExpectBigEndianUInt32(0x7);
             delay.DelayOnOff = binaryReader.ReadByte();
@@ -738,7 +740,7 @@ class X9aFile
 
         public static Reverb Read(BinaryReader binaryReader)
         {
-            Reverb reverb = new Reverb();
+            Reverb reverb = new();
 
             binaryReader.ExpectBigEndianUInt32(0x5);
             reverb.ReverbOnOff = binaryReader.ReadByte();
@@ -789,7 +791,7 @@ class X9aFile
 
         public static MasterKeyboardZone Read(BinaryReader binaryReader)
         {
-            MasterKeyboardZone zone = new MasterKeyboardZone();
+            MasterKeyboardZone zone = new();
 
             binaryReader.ExpectBigEndianUInt32(0x16);
             zone.ZoneSwitchOnOff = binaryReader.ReadByte();
@@ -896,7 +898,7 @@ class X9aFile
 
         public static Section Read(BinaryReader binaryReader)
         {
-            Section section = new Section();
+            Section section = new();
 
             uint structLength = binaryReader.ReadBigEndianUInt32();
             if (structLength != 0x15 && structLength != 0x17 && structLength != 0x1D)
@@ -1018,7 +1020,7 @@ class X9aFile
 
         public static SectionExtension Read(BinaryReader binaryReader)
         {
-            SectionExtension sectionExtension = new SectionExtension();
+            SectionExtension sectionExtension = new();
 
             sectionExtension.TouchSensitivityDepth = binaryReader.ReadByte();
             sectionExtension.TouchSensitivityOffset = binaryReader.ReadByte();
@@ -1051,7 +1053,7 @@ class X9aFile
 
         public static SectionExtension2 Read(BinaryReader binaryReader)
         {
-            SectionExtension2 sectionExtension2 = new SectionExtension2();
+            SectionExtension2 sectionExtension2 = new();
 
             sectionExtension2.SoundMonoPoly = binaryReader.ReadByte();
             sectionExtension2.SoundPortamentoSwitch = binaryReader.ReadByte();
@@ -1094,7 +1096,7 @@ class X9aFile
 
         public static LiveSetEQ2 Read(BinaryReader binaryReader)
         {
-            LiveSetEQ2 liveSetEQ2 = new LiveSetEQ2();
+            LiveSetEQ2 liveSetEQ2 = new();
 
             binaryReader.ExpectBigEndianUInt32(0x4);
             liveSetEQ2.LowGain = binaryReader.ReadByte();
@@ -1167,7 +1169,7 @@ class X9aFile
 
         public static SystemData Read(BinaryReader binaryReader)
         {
-            SystemData systemData = new SystemData();
+            SystemData systemData = new();
 
             binaryReader.ExpectBigEndianUInt32(0x22);
             systemData.AutoPowerOff = binaryReader.ReadByte();

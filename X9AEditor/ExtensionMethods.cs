@@ -13,7 +13,7 @@ internal static class ExtensionMethods
 
     public static string ReadNullTerminatedString(this BinaryReader reader)
     {
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new();
         char c;
         while ((c = reader.ReadChar()) != '\0')
             result.Append(c);

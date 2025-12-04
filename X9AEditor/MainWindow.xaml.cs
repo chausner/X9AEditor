@@ -10,7 +10,7 @@ namespace X9AEditor;
 /// </summary>
 public partial class MainWindow : Window
 {
-    readonly MainViewModel viewModel = new MainViewModel();
+    readonly MainViewModel viewModel = new();
 
     public MainWindow()
     {
