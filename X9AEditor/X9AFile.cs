@@ -19,7 +19,7 @@ class X9aFile
     private X9aFile(BinaryReader binaryReader)
     {
         Header header = ParseHeader(binaryReader);
-        Dictionary<string, CatalogueEntry> catalogue = ParseCatalogue(binaryReader, header.CatalogueSize);
+        OrderedDictionary<string, CatalogueEntry> catalogue = ParseCatalogue(binaryReader, header.CatalogueSize);
 
         if (!catalogue.Keys.SequenceEqual(["ELST", "ESYS", "DLST", "DSYS"]))
             throw new InvalidDataException("Unexpected catalogue: " + string.Join(", ", catalogue.Keys));
@@ -88,7 +88,7 @@ class X9aFile
     {
         using (BinaryWriter binaryWriter = new(stream, YamahaEncoding.Instance, true))
         {
-            Dictionary<string, CatalogueEntry> catalogue = new()
+            OrderedDictionary<string, CatalogueEntry> catalogue = new()
             {
                 ["ELST"] = new CatalogueEntry() { ID = "ELST" },
                 ["ESYS"] = new CatalogueEntry() { ID = "ESYS" },
@@ -175,10 +175,10 @@ class X9aFile
         binaryWriter.Write([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
     }
 
-    private Dictionary<string, CatalogueEntry> ParseCatalogue(BinaryReader binaryReader, uint catalogueSize)
+    private OrderedDictionary<string, CatalogueEntry> ParseCatalogue(BinaryReader binaryReader, uint catalogueSize)
     {
         uint numEntries = catalogueSize / 8;
-        Dictionary<string, CatalogueEntry> catalogue = new((int)numEntries);
+        OrderedDictionary<string, CatalogueEntry> catalogue = new((int)numEntries);
 
         for (uint i = 0; i < numEntries; i++)
         {
@@ -193,7 +193,7 @@ class X9aFile
         return catalogue;
     }
 
-    private void WriteCatalogue(BinaryWriter binaryWriter, Dictionary<string, CatalogueEntry> catalogue)
+    private void WriteCatalogue(BinaryWriter binaryWriter, OrderedDictionary<string, CatalogueEntry> catalogue)
     {
         foreach (CatalogueEntry entry in catalogue.Values)
         {
