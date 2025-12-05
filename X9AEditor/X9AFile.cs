@@ -39,7 +39,7 @@ class X9aFile
             byte[] data = binaryReader.ReadBytes((int)entryListEntries[i].DataSize);
 
             using (MemoryStream memoryStream = new(data, false))
-            using (BinaryReader binaryReader2 = new(memoryStream, new YamahaEncoding()))
+            using (BinaryReader binaryReader2 = new(memoryStream, YamahaEncoding.Instance))
                 Voices[i] = ParseDataList(binaryReader2);
 
             if (entryListEntries[i].LiveSetPage != i / 8)
@@ -61,7 +61,7 @@ class X9aFile
             byte[] data = binaryReader.ReadBytes((int)entrySystemEntries[0].DataSize);
 
             using (MemoryStream memoryStream = new(data, false))
-            using (BinaryReader binaryReader2 = new(memoryStream, new YamahaEncoding()))
+            using (BinaryReader binaryReader2 = new(memoryStream, YamahaEncoding.Instance))
                 System = ParseDataSystem(binaryReader2);
         }
     }
@@ -74,7 +74,7 @@ class X9aFile
 
     public static X9aFile Parse(Stream stream)
     {
-        using (BinaryReader binaryReader = new(stream, new YamahaEncoding(), true))
+        using (BinaryReader binaryReader = new(stream, YamahaEncoding.Instance, true))
             return new X9aFile(binaryReader);
     }
 
@@ -86,7 +86,7 @@ class X9aFile
 
     public void Save(Stream stream)
     {
-        using (BinaryWriter binaryWriter = new(stream, new YamahaEncoding(), true))
+        using (BinaryWriter binaryWriter = new(stream, YamahaEncoding.Instance, true))
         {
             Dictionary<string, CatalogueEntry> catalogue = new()
             {
@@ -1262,6 +1262,8 @@ class X9aFile
 
     private class YamahaEncoding : Encoding
     {
+        public static readonly YamahaEncoding Instance = new();
+
         public override int GetByteCount(char[] chars, int index, int count)
         {
             return Encoding.ASCII.GetByteCount(chars, index, count);
