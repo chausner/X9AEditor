@@ -21,34 +21,52 @@ class X9aFile
         Header header = ParseHeader(binaryReader);
         OrderedDictionary<string, CatalogueEntry> catalogue = ParseCatalogue(binaryReader, header.CatalogueSize);
 
-        if (!catalogue.Keys.SequenceEqual(["ELST", "ESYS", "DLST", "DSYS"]))
+        if (!catalogue.Keys.SequenceEqual(["ELST", "ESYS", "DLST", "DSYS"]) &&
+            !catalogue.Keys.SequenceEqual(["ELST", "ESYS", "ELSE", "DLST", "DSYS", "DLSE"]))
             throw new InvalidDataException("Unexpected catalogue: " + string.Join(", ", catalogue.Keys));
 
         CatalogueEntry elst = catalogue["ELST"];
         CatalogueEntry esys = catalogue["ESYS"];
+        CatalogueEntry? @else = catalogue.ContainsKey("ELSE") ? catalogue["ELSE"] : null;
         CatalogueEntry dlst = catalogue["DLST"];
         CatalogueEntry dsys = catalogue["DSYS"];
+        CatalogueEntry? dlse = catalogue.ContainsKey("DLSE") ? catalogue["DLSE"] : null;
 
         // voices
-        EntryListEntry[] entryListEntries = ParseEntryList(binaryReader, elst);
-        Voices = new Voice[entryListEntries.Length];
+        List<EntryListEntry> entryListEntries = [];
+        List<Voice> voices = [];
 
-        for (int i = 0; i < entryListEntries.Length; i++)
+        ReadVoices(elst, dlst);
+        if (@else != null && dlse != null)
+            ReadVoices(@else, dlse);
+
+        void ReadVoices(CatalogueEntry catalogueEntryList, CatalogueEntry catalogueDataList)
         {
-            binaryReader.BaseStream.Seek(dlst.Offset + entryListEntries[i].DataOffset + 8, SeekOrigin.Begin);
-            byte[] data = binaryReader.ReadBytes((int)entryListEntries[i].DataSize);
+            foreach (var entryListEntry in ParseEntryList(binaryReader, catalogueEntryList))
+            {
+                entryListEntries.Add(entryListEntry);
 
-            using (MemoryStream memoryStream = new(data, false))
-            using (BinaryReader binaryReader2 = new(memoryStream, YamahaEncoding.Instance))
-                Voices[i] = ParseDataList(binaryReader2);
+                binaryReader.BaseStream.Seek(catalogueDataList.Offset + entryListEntry.DataOffset + 8, SeekOrigin.Begin);
+                byte[] data = binaryReader.ReadBytes((int)entryListEntry.DataSize);
 
-            if (entryListEntries[i].LiveSetPage != i / 8)
-                throw new InvalidDataException($"Unexpected live set page");
-            if (entryListEntries[i].LiveSetIndex != i % 8)
-                throw new InvalidDataException($"Unexpected live set index");
-            if (entryListEntries[i].EntryName != Voices[i].Name)
-                throw new InvalidDataException($"Unexpected entry list entry name");
+                Voice voice;
+                using (MemoryStream memoryStream = new(data, false))
+                using (BinaryReader binaryReader2 = new(memoryStream, YamahaEncoding.Instance))
+                    voice = ParseDataList(binaryReader2);
+
+                int index = entryListEntries.Count - 1;
+                if (entryListEntry.LiveSetPage != index / 8)
+                    throw new InvalidDataException($"Unexpected live set page");
+                if (entryListEntry.LiveSetIndex != index % 8)
+                    throw new InvalidDataException($"Unexpected live set index");
+                if (entryListEntry.EntryName != voice.Name)
+                    throw new InvalidDataException($"Unexpected entry list entry name");
+
+                voices.Add(voice);
+            }
         }
+
+        Voices = voices.ToArray();
 
         // system data
         EntrySystemEntry[] entrySystemEntries = ParseEntrySystem(binaryReader, esys);
@@ -86,6 +104,14 @@ class X9aFile
 
     public void Save(Stream stream)
     {
+        bool extendedEntries;
+        if (Voices.Length == 160)        
+            extendedEntries = false;        
+        else if (Voices.Length == 320)        
+            extendedEntries = true;        
+        else        
+            throw new InvalidDataException("Number of voices must be either 160 or 320");        
+
         using (BinaryWriter binaryWriter = new(stream, YamahaEncoding.Instance, true))
         {
             OrderedDictionary<string, CatalogueEntry> catalogue = new()
@@ -96,26 +122,20 @@ class X9aFile
                 ["DSYS"] = new CatalogueEntry() { ID = "DSYS" }
             };
 
+            if (extendedEntries)
+            {
+                catalogue.Insert(2, "ELSE", new CatalogueEntry() { ID = "ELSE" });
+                catalogue.Add("DLSE", new CatalogueEntry() { ID = "DLSE" });
+            }
+
             Header header = new() { CatalogueSize = (uint)(catalogue.Count * 8) };
             WriteHeader(binaryWriter, header);
 
             long catalogueStart = binaryWriter.BaseStream.Position;
             WriteCatalogue(binaryWriter, catalogue); // catalogue does not contain proper offsets yet
 
-            EntryListEntry[] entryListEntries = new EntryListEntry[Voices.Length];
-            for (int i = 0; i < entryListEntries.Length; i++)
-            {
-                entryListEntries[i] = new EntryListEntry
-                {
-                    DataOffset = sizeof(uint) + (2 * sizeof(uint)) + (uint)(i * (EntryListEntryPadSize + 2 * sizeof(uint))),
-                    DataSize = EntryListEntryPadSize,
-                    LiveSetPage = (byte)(i / 8),
-                    LiveSetIndex = (byte)(i % 8),
-                    EntryName = Voices[i].Name
-                };
-            }
             catalogue["ELST"].Offset = (uint)binaryWriter.BaseStream.Position;
-            WriteEntryList(binaryWriter, entryListEntries);
+            WriteEntryList(catalogue["ELST"], 0, 160);
 
             EntrySystemEntry[] entrySystemEntries = new EntrySystemEntry[1];
             for (int i = 0; i < entrySystemEntries.Length; i++)
@@ -129,12 +149,18 @@ class X9aFile
             catalogue["ESYS"].Offset = (uint)binaryWriter.BaseStream.Position;
             WriteEntrySystem(binaryWriter, entrySystemEntries);
 
+            if (extendedEntries)
+            {
+                catalogue["ELSE"].Offset = (uint)binaryWriter.BaseStream.Position;
+                WriteEntryList(catalogue["ELSE"], 160, 160);
+            }
+
             catalogue["DLST"].Offset = (uint)binaryWriter.BaseStream.Position;
             binaryWriter.Write("DLST".AsSpan());
             using (WriteBlockLength(binaryWriter))
             {
-                binaryWriter.WriteBigEndian((uint)Voices.Length);
-                foreach (Voice voice in Voices)
+                binaryWriter.WriteBigEndian((uint)160);
+                foreach (Voice voice in Voices.Take(160))
                     WriteDataList(binaryWriter, voice);
             }
 
@@ -146,10 +172,39 @@ class X9aFile
                 WriteDataSystem(binaryWriter, System);
             }
 
+            if (extendedEntries)
+            {
+                catalogue["DLSE"].Offset = (uint)binaryWriter.BaseStream.Position;
+                binaryWriter.Write("DLSE".AsSpan());
+                using (WriteBlockLength(binaryWriter))
+                {
+                    binaryWriter.WriteBigEndian((uint)160);
+                    foreach (Voice voice in Voices.Skip(160).Take(160))
+                        WriteDataList(binaryWriter, voice);
+                }
+            }
+
             long endPosition = binaryWriter.BaseStream.Position;
             binaryWriter.BaseStream.Seek(catalogueStart, SeekOrigin.Begin);
             WriteCatalogue(binaryWriter, catalogue); // write catalogue a second time, this time with proper offsets
             binaryWriter.BaseStream.Seek(endPosition, SeekOrigin.Begin);
+
+            void WriteEntryList(CatalogueEntry catalogueEntry, int index, int count)
+            {
+                EntryListEntry[] entryListEntries = new EntryListEntry[count];
+                for (int i = 0; i < entryListEntries.Length; i++)
+                {
+                    entryListEntries[i] = new EntryListEntry
+                    {
+                        DataOffset = sizeof(uint) + (2 * sizeof(uint)) + (uint)(i * (EntryListEntryPadSize + 2 * sizeof(uint))),
+                        DataSize = EntryListEntryPadSize,
+                        LiveSetPage = (byte)((index + i) / 8),
+                        LiveSetIndex = (byte)((index + i) % 8),
+                        EntryName = Voices[index + i].Name
+                    };
+                }
+                this.WriteEntryList(binaryWriter, catalogueEntry, entryListEntries);
+            }
         }
     }
 
@@ -243,9 +298,9 @@ class X9aFile
         return entries;
     }
 
-    private void WriteEntryList(BinaryWriter binaryWriter, EntryListEntry[] entries)
+    private void WriteEntryList(BinaryWriter binaryWriter, CatalogueEntry catalogueEntry, EntryListEntry[] entries)
     {
-        binaryWriter.Write("ELST".AsSpan());
+        binaryWriter.Write(catalogueEntry.ID.AsSpan());
         using (WriteBlockLength(binaryWriter))
         {
             binaryWriter.WriteBigEndian((uint)entries.Length);
@@ -443,7 +498,6 @@ class X9aFile
         public string EntryName;
     }
 
-    [Serializable]
     public class Voice : ICloneable
     {
         public string Name;
@@ -524,8 +578,8 @@ class X9aFile
             if (numSections != 3)
                 throw new InvalidDataException();
             voice.Sections = new Section[numSections];
-            for (int i = 0; i < numSections; i++)
-                voice.Sections[i] = Section.Read(binaryReader);
+            for (int i = 0; i < numSections; i++)            
+                voice.Sections[i] = Section.Read(binaryReader);            
 
             // live set EQ 2
             uint liveSetEQ2Length = binaryReader.ReadBigEndianUInt32();
@@ -627,13 +681,17 @@ class X9aFile
                     voice.LiveSetEQ = LiveSetEQ.Default;
                 if (voice.LiveSetEQ2 == null)
                     voice.LiveSetEQ2 = LiveSetEQ2.Default;
+                if (voice.Delay.Extension == null)
+                    voice.Delay.Extension = DelayExtension.Default;
 
-                foreach (Section section in voice.Sections)
+                foreach (var (sectionIndex, section) in voice.Sections.Index())
                 {
                     if (section.Extension == null)
                         section.Extension = SectionExtension.Default;
                     if (section.Extension2 == null)
                         section.Extension2 = SectionExtension2.Default;
+                    if (section.Extension3 == null)
+                        section.Extension3 = SectionExtension3.GetDefault(sectionIndex);
                 }
             }
         }
@@ -644,7 +702,6 @@ class X9aFile
         }
     }
 
-    [Serializable]
     public record LiveSetEQ
     {
         public byte LiveSetEQModeSwitch;
@@ -689,7 +746,6 @@ class X9aFile
         };
     }
 
-    [Serializable]
     public record Delay
     {
         public byte DelayOnOff;
@@ -699,12 +755,15 @@ class X9aFile
         public byte PianoDelayDepth;
         public byte EPianoDelayDepth;
         public byte SubDelayDepth;
+        public DelayExtension? Extension;
 
         public static Delay Read(BinaryReader binaryReader)
         {
             Delay delay = new();
 
-            binaryReader.ExpectBigEndianUInt32(0x7);
+            uint structLength = binaryReader.ReadBigEndianUInt32();
+            if (structLength != 0x7 && structLength != 0xA)
+                throw new InvalidDataException();
             delay.DelayOnOff = binaryReader.ReadByte();
             delay.DelayType = binaryReader.ReadByte();
             delay.DelayTime = binaryReader.ReadByte();
@@ -712,13 +771,16 @@ class X9aFile
             delay.PianoDelayDepth = binaryReader.ReadByte();
             delay.EPianoDelayDepth = binaryReader.ReadByte();
             delay.SubDelayDepth = binaryReader.ReadByte();
+            if (structLength >= 0xA)
+                delay.Extension = DelayExtension.Read(binaryReader);
 
             return delay;
         }
 
         public void WriteTo(BinaryWriter binaryWriter)
         {
-            binaryWriter.WriteBigEndian(0x7U);
+            uint structLength = Extension != null ? 0xAU : 0x7U;
+            binaryWriter.WriteBigEndian(structLength);
             binaryWriter.Write(DelayOnOff);
             binaryWriter.Write(DelayType);
             binaryWriter.Write(DelayTime);
@@ -726,10 +788,38 @@ class X9aFile
             binaryWriter.Write(PianoDelayDepth);
             binaryWriter.Write(EPianoDelayDepth);
             binaryWriter.Write(SubDelayDepth);
+            Extension?.WriteTo(binaryWriter);
         }
     }
 
-    [Serializable]
+    public record DelayExtension
+    {
+        public byte TempoDelayTime;
+        public ushort TempoDelayTempo;
+
+        public static DelayExtension Read(BinaryReader binaryReader)
+        {
+            DelayExtension delayExtension = new();
+
+            delayExtension.TempoDelayTime = binaryReader.ReadByte();
+            delayExtension.TempoDelayTempo = binaryReader.ReadUInt16();
+
+            return delayExtension;
+        }
+
+        public void WriteTo(BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(TempoDelayTime);
+            binaryWriter.Write(TempoDelayTempo);
+        }
+
+        public static DelayExtension Default => new()
+        {
+            TempoDelayTime = 11,
+            TempoDelayTempo = 900
+        };
+    }
+
     public record Reverb
     {
         public byte ReverbOnOff;
@@ -763,7 +853,6 @@ class X9aFile
         }
     }
 
-    [Serializable]
     public record MasterKeyboardZone
     {
         public byte ZoneSwitchOnOff;
@@ -848,7 +937,6 @@ class X9aFile
         }
     }
 
-    [Serializable]
     public record Section
     {
         public byte VoiceCategory;
@@ -895,6 +983,7 @@ class X9aFile
         public byte SubDspSpeed;
         public byte SubDspAttack;
         public byte SubDspRelease;
+        public SectionExtension3? Extension3;
 
         public static Section Read(BinaryReader binaryReader)
         {
@@ -929,7 +1018,9 @@ class X9aFile
             if (structLength >= 0x1D)
                 section.Extension2 = SectionExtension2.Read(binaryReader);
 
-            binaryReader.ExpectBigEndianUInt32(0x14);
+            structLength = binaryReader.ReadBigEndianUInt32();
+            if (structLength != 0x14 && structLength != 0x16)
+                throw new InvalidDataException();
             section.PianoDamperResonance = binaryReader.ReadByte();
             section.PianoDspOnOff = binaryReader.ReadByte();
             section.PianoDspCategory = binaryReader.ReadByte();
@@ -950,6 +1041,8 @@ class X9aFile
             section.SubDspSpeed = binaryReader.ReadByte();
             section.SubDspAttack = binaryReader.ReadByte();
             section.SubDspRelease = binaryReader.ReadByte();
+            if (structLength >= 0x16)
+                section.Extension3 = SectionExtension3.Read(binaryReader);
 
             return section;
         }
@@ -988,7 +1081,8 @@ class X9aFile
             Extension?.WriteTo(binaryWriter);
             Extension2?.WriteTo(binaryWriter);
 
-            binaryWriter.WriteBigEndian(0x14U);
+            structLength = Extension3 != null ? 0x16U : 0x14U;
+            binaryWriter.WriteBigEndian(structLength);
             binaryWriter.Write(PianoDamperResonance);
             binaryWriter.Write(PianoDspOnOff);
             binaryWriter.Write(PianoDspCategory);
@@ -1009,10 +1103,10 @@ class X9aFile
             binaryWriter.Write(SubDspSpeed);
             binaryWriter.Write(SubDspAttack);
             binaryWriter.Write(SubDspRelease);
+            Extension3?.WriteTo(binaryWriter);
         }
     }
 
-    [Serializable]
     public record SectionExtension
     {
         public byte TouchSensitivityDepth;
@@ -1041,7 +1135,6 @@ class X9aFile
         };
     }
 
-    [Serializable]
     public record SectionExtension2
     {
         public byte SoundMonoPoly;
@@ -1086,7 +1179,40 @@ class X9aFile
         };
     }
 
-    [Serializable]
+    public record SectionExtension3
+    {
+        public byte DamperControl;
+        public byte DamperResonanceDryWetBalance;
+
+        public static SectionExtension3 Read(BinaryReader binaryReader)
+        {
+            SectionExtension3 sectionExtension3 = new();
+
+            sectionExtension3.DamperControl = binaryReader.ReadByte();
+            sectionExtension3.DamperResonanceDryWetBalance = binaryReader.ReadByte();
+
+            return sectionExtension3;
+        }
+
+        public void WriteTo(BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(DamperControl);
+            binaryWriter.Write(DamperResonanceDryWetBalance);
+        }
+
+        public static SectionExtension3 GetDefault(int sectionIndex)
+        {
+            if (sectionIndex < 0 || sectionIndex > 2)
+                throw new ArgumentOutOfRangeException(nameof(sectionIndex));
+
+            return new()
+            {
+                DamperControl = 0,
+                DamperResonanceDryWetBalance = sectionIndex == 0 ? (byte)25 : (byte)0
+            };
+        }
+    }
+
     public record LiveSetEQ2
     {
         public byte LowGain;
@@ -1125,7 +1251,6 @@ class X9aFile
         };
     }
 
-    [Serializable]
     public record SystemData
     {
         public byte AutoPowerOff;
@@ -1162,6 +1287,7 @@ class X9aFile
         public byte UsbAudioVolume;
         public byte MidiDeviceNumber;
         public byte MidiControlDelay;
+        public SystemDataExtension? Extension;
 
         public ushort MasterTune;
         public byte Unknown2;
@@ -1171,7 +1297,9 @@ class X9aFile
         {
             SystemData systemData = new();
 
-            binaryReader.ExpectBigEndianUInt32(0x22);
+            uint structLength = binaryReader.ReadBigEndianUInt32();
+            if (structLength != 0x22 && structLength != 0x24)
+                throw new InvalidDataException();
             systemData.AutoPowerOff = binaryReader.ReadByte();
             systemData.KeyboardOctave = binaryReader.ReadByte();
             systemData.Transpose = binaryReader.ReadByte();
@@ -1206,6 +1334,8 @@ class X9aFile
             systemData.UsbAudioVolume = binaryReader.ReadByte();
             systemData.MidiDeviceNumber = binaryReader.ReadByte();
             systemData.MidiControlDelay = binaryReader.ReadByte();
+            if (structLength >= 0x24)
+                systemData.Extension = SystemDataExtension.Read(binaryReader);
 
             binaryReader.ExpectBigEndianUInt32(0x4);
             systemData.MasterTune = binaryReader.ReadUInt16();
@@ -1217,7 +1347,8 @@ class X9aFile
 
         public void WriteTo(BinaryWriter binaryWriter)
         {
-            binaryWriter.WriteBigEndian(0x22U);
+            uint structLength = Extension != null ? 0x24U : 0x22U;
+            binaryWriter.WriteBigEndian(structLength);
             binaryWriter.Write(AutoPowerOff);
             binaryWriter.Write(KeyboardOctave);
             binaryWriter.Write(Transpose);
@@ -1252,12 +1383,41 @@ class X9aFile
             binaryWriter.Write(UsbAudioVolume);
             binaryWriter.Write(MidiDeviceNumber);
             binaryWriter.Write(MidiControlDelay);
+            Extension?.WriteTo(binaryWriter);
 
             binaryWriter.WriteBigEndian(0x4U);
             binaryWriter.Write(MasterTune);
             binaryWriter.Write(Unknown2);
             binaryWriter.Write(Unknown3);
         }
+    }
+
+    public record SystemDataExtension
+    {
+        public byte SectionSWMode;
+        public byte OutputGain;
+
+        public static SystemDataExtension Read(BinaryReader binaryReader)
+        {
+            SystemDataExtension systemDataExtension = new();
+
+            systemDataExtension.SectionSWMode = binaryReader.ReadByte();
+            systemDataExtension.OutputGain = binaryReader.ReadByte();
+
+            return systemDataExtension;
+        }
+
+        public void WriteTo(BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(SectionSWMode);
+            binaryWriter.Write(OutputGain);
+        }
+
+        public static SystemDataExtension Default => new()
+        {
+            SectionSWMode = 0,
+            OutputGain = 64
+        };
     }
 
     private class YamahaEncoding : Encoding

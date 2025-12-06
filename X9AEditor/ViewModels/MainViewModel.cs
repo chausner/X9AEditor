@@ -246,7 +246,9 @@ class MainViewModel : ViewModel
 
     private bool CanExecuteMoveDownCommand()
     {
-        return SelectedVoices.Count > 0 && !SelectedVoices.Any(v => v.LiveSetPage == 20 && v.LiveSetIndex == 8);
+        int lastLiveSetPage = (Voices.Count + 7) / 8;
+
+        return SelectedVoices.Count > 0 && !SelectedVoices.Any(v => v.LiveSetPage == lastLiveSetPage && v.LiveSetIndex == 8);
     }
 
     private void ExecuteCopyCommand()

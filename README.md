@@ -10,10 +10,15 @@ Tool to inspect, edit and merge Yamaha CP88/CP73 backup files (.X9A)
 - View and edit voice names
 - Reorder and copy voices between backups
 - Reset voices to their factory default
-- Compatible with firmware versions 1.20, 1.30, 1.31, 1.40, 1.41, 1.50, 1.60 (older or newer versions may work but are untested)
+- Compatible with firmware versions 1.20, 1.30, 1.31, 1.40, 1.41, 1.50, 1.60, 2.00 (older or newer versions may work but are untested)
 
 While all functionality that this tool provides can already be performed on the instrument itself, it is inconvenient to make major changes there directly.
 This tool provides a faster way to rename, reorder and merge voices from one or more backups.
+
+## Installation
+1. Make sure you have [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) installed.
+1. Download the latest release from the [releases page](https://github.com/chausner/X9AEditor/releases/latest).
+1. Extract the ZIP archive to a folder of your choice and run `X9AEditor.exe`.
 
 ## Usage
 ![Screenshot](screenshot.png)
