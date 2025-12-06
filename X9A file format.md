@@ -21,7 +21,7 @@ Unless noted otherwise, all numbers are stored in big-endian format. Strings are
 
 The ELST block stores metadata for each voice. There should always be exactly 20 * 8 entries, i.e. 8 voices per live set page.
 For firmware version 2.0 and above, the ELST block only stores the metadata for the first 20 live set pages.
-Live set pages 20-40 are stored in the ELSE block (see below).
+Live set pages 21-40 are stored in the ELSE block (see below).
 
 | data type | field                       |
 | --------- | --------------------------- |
@@ -244,7 +244,7 @@ The only difference is that the values here use a larger numerical range.
 
 ## ELSE block payload
 
-The ELSE block is present starting with firmware version 2.0 and stores metadata for live set pages 20-40.
+The ELSE block is present starting with firmware version 2.0 and stores metadata for live set pages 21-40.
 There should always be exactly 20 entries.
 The payload structure is identical to the ELST block described above,
 except that data size and offset refer to the associated data of the entry in the DLSE block.
@@ -330,5 +330,5 @@ Starting with firmware version 2.0, the following additional fields are present:
 
 ## DLSE block payload
 
-The DLSE block is present starting with firmware version 2.0 and stores data for live set pages 20-40.
+The DLSE block is present starting with firmware version 2.0 and stores data for live set pages 21-40.
 The payload structure is identical to the DLST block described above.
