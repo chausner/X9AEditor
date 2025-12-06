@@ -5,10 +5,13 @@ This document describes the backup format (X9A files) that Yamaha CP88/CP73 inst
 The overall file structure is based on the Yamaha YSFC file format as outlined in https://gist.github.com/chausner/158b70106369a72ef15ad4ec09e29d5e with the following differences:
 
 * The version number in the header is 6.0.0.
-* The only block types used are ELST, ESYS, DLST and DSYS.
+* The only block types used are ELST, ESYS, DLST and DSYS. Starting with firmware version 2.0, two additional block types ELSE and DLSE occur.
 
-ELST and ESYS blocks contain metadata and reference the corresponding data blocks DLST and DSYS which store the actual voice/system data.
-There should be exactly one block of each type in the file and the order should be ELST, ESYS, DLST, DSYS.
+ELST, ESYS and ELSE blocks contain metadata and reference the corresponding data blocks DLST, DSYS and DLSE which store the actual voice/system data.
+There should be exactly one block of each type in the file and the order should be
+
+* ELST, ESYS, DLST, DSYS for firmware versions below 2.0.
+* ELST, ESYS, ELSE, DLST, DSYS, DLSE for firmware version 2.0 and above.
 
 ## Encoding
 
@@ -17,6 +20,8 @@ Unless noted otherwise, all numbers are stored in big-endian format. Strings are
 ## ELST block payload
 
 The ELST block stores metadata for each voice. There should always be exactly 20 * 8 entries, i.e. 8 voices per live set page.
+For firmware version 2.0 and above, the ELST block only stores the metadata for the first 20 live set pages.
+Live set pages 20-40 are stored in the ELSE block (see below).
 
 | data type | field                       |
 | --------- | --------------------------- |
@@ -75,11 +80,11 @@ Starting with firmware version 1.3, the following additional fields are present:
 | uint8     | mid gain frequency (range: 14..54)                                    |
 | uint8     | high gain (range: 52..76, 64: +0dB)                                   |
 
-Delay:
+### Delay
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
-| uint32    | length of structure, always 0x7                                       |
+| uint32    | length of structure, either 0x7 or 0xA                                |
 | uint8     | delay on/off                                                          |
 | uint8     | delay type (0: analog, 1: digital)                                    |
 | uint8     | delay time                                                            |
@@ -88,7 +93,14 @@ Delay:
 | uint8     | e.piano delay depth                                                   |
 | uint8     | sub delay depth                                                       |
 
-Reverb:
+Starting with firmware version 2.0, the following additional fields are present:
+
+| data type | field                                                                 |
+| --------- | --------------------------------------------------------------------- |
+| uint8     | tempo delay time (range: 0..14, 0: 1/32 Tri., 14: 1/2)                |
+| uint16*   | tempo delay tempo (range: 420..2400, in 0.1 beats per minute)         |
+
+### Reverb
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
@@ -99,7 +111,7 @@ Reverb:
 | uint8     | e.piano reverb depth                                                  |
 | uint8     | sub reverb depth                                                      |
 
-Master keyboard settings:
+### Master keyboard settings
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
@@ -133,7 +145,7 @@ For each zone, the following structure follows:
 | uint8     | volume                                                                |
 | uint8     | pan (center: 64)                                                      |
 
-Sections:
+### Sections
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
@@ -177,7 +189,7 @@ Starting with firmware version 1.6, the following additional fields are present:
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
-| uint8     | mono/poly (0: Mono, 1: Poly)                                           |
+| uint8     | mono/poly (0: Mono, 1: Poly)                                          |
 | uint8     | portamento switch                                                     |
 | uint8     | portamento time                                                       |
 | uint8     | portamento mode (0: Fingered, 1: Full-time)                           |
@@ -186,7 +198,7 @@ Starting with firmware version 1.6, the following additional fields are present:
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
-| uint32    | length of structure, always 0x14                                      |
+| uint32    | length of structure, either 0x14 or 0x16                              |
 | uint8     | piano damper resonance                                                |
 | uint8     | piano dsp on/off                                                      |
 | uint8     | piano dsp category (0-3)                                              |
@@ -208,7 +220,14 @@ Starting with firmware version 1.6, the following additional fields are present:
 | uint8     | sub dsp attack                                                        |
 | uint8     | sub dsp release                                                       |
 
-Live Set EQ:
+Starting with firmware version 2.0, the following additional fields are present:
+
+| data type | field                                                                           |
+| --------- | ------------------------------------------------------------------------------- |
+| uint8     | damper control                                                                  |
+| uint8     | damper resonance dry/wet balance (range: 1..127, 1: D63<W, 64: D=W, 127: D>W63) |
+
+### Live Set EQ
 
 Starting with firmware version 1.3, the following structure may be present:
 
@@ -222,6 +241,13 @@ Starting with firmware version 1.3, the following structure may be present:
 
 These values are similar to the live set EQ values mentioned above.
 The only difference is that the values here use a larger numerical range.
+
+## ELSE block payload
+
+The ELSE block is present starting with firmware version 2.0 and stores metadata for live set pages 20-40.
+There should always be exactly 20 entries.
+The payload structure is identical to the ELST block described above,
+except that data size and offset refer to the associated data of the entry in the DLSE block.
 
 ## ESYS block payload
 
@@ -248,7 +274,7 @@ Data size and offset refer to the associated data of the entry in the DSYS block
 
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
-| uint32    | length of structure, always 0x22                                      |
+| uint32    | length of structure, either 0x22 or 0x24                              |
 | uint8     | auto power off                                                        |
 | uint8     | keyboard octave (64: +0)                                              |
 | uint8     | transpose (64: +0)                                                    |
@@ -283,12 +309,26 @@ Data size and offset refer to the associated data of the entry in the DSYS block
 | uint8     | USB audio volume                                                      |
 | uint8     | MIDI device number (zero-based, all: 0x10)                            |
 | uint8     | MIDI control delay (* 100msec)                                        |
-                                               
+
+Starting with firmware version 2.0, the following additional fields are present:
+
+| data type | field                                                                 |
+| --------- | --------------------------------------------------------------------- |
+| uint8     | section SW mode                                                       |
+| uint8     | output gain                                                           |
+
+### Master Tune
+
 | data type | field                                                                 |
 | --------- | --------------------------------------------------------------------- |
 | uint32    | length of structure, always 0x4                                       |
-| ushort*   | master tune (range: 0..0x7FF, 0: 414.72Hz, 0x7FF: 466.78Hz)           |
+| uint16*   | master tune (range: 0..0x7FF, 0: 414.72Hz, 0x7FF: 466.78Hz)           |
 | byte      | unknown, always 0x5A                                                  |
 | byte      | unknown, always 0x00                                                  |
 
 \* encoded in little-endian
+
+## DLSE block payload
+
+The DLSE block is present starting with firmware version 2.0 and stores data for live set pages 20-40.
+The payload structure is identical to the DLST block described above.
