@@ -71,15 +71,43 @@
                     <Setter Property="ContextMenu">
                         <Setter.Value>
                             <ContextMenu>
-                                <MenuItem Header="Copy" Command="{Binding MainViewModel.CopyCommand}" InputGestureText="Ctrl+C"/>
-                                <MenuItem Header="Paste" Command="{Binding MainViewModel.PasteCommand}" InputGestureText="Ctrl+V"/>
+                                <MenuItem Header="Copy" Command="{Binding MainViewModel.CopyCommand}" InputGestureText="Ctrl+C">
+                                    <MenuItem.Icon>
+                                        <Image Source="Assets\page_white_copy.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Paste" Command="{Binding MainViewModel.PasteCommand}" InputGestureText="Ctrl+V">
+                                    <MenuItem.Icon>
+                                        <Image Source="Assets\page_white_paste.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
                                 <Separator/>
-                                <MenuItem Header="Move up" Command="{Binding MainViewModel.MoveUpCommand}"/>
-                                <MenuItem Header="Move down" Command="{Binding MainViewModel.MoveDownCommand}"/>
+                                <MenuItem Header="Move up" Command="{Binding MainViewModel.MoveUpCommand}">
+                                    <MenuItem.Icon>
+                                        <Image Source="Assets\arrow_up.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Move down" Command="{Binding MainViewModel.MoveDownCommand}">
+                                    <MenuItem.Icon>
+                                        <Image Source="Assets\arrow_down.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
                                 <Separator/>
-                                <MenuItem Header="Undo changes" Command="{Binding MainViewModel.UndoChangesCommand}"/>
-                                <MenuItem Header="Reset to factory setting" Command="{Binding MainViewModel.ResetToFactorySettingCommand}"/>
-                                <MenuItem Header="Initialize" Command="{Binding MainViewModel.InitializeCommand}"/>
+                                <MenuItem Header="Undo changes" Command="{Binding MainViewModel.UndoChangesCommand}">
+                                    <MenuItem.Icon>
+                                        <Image Source="Assets\arrow_undo.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Reset to factory setting" Command="{Binding MainViewModel.ResetToFactorySettingCommand}">
+                                    <MenuItem.Icon>
+                                        <Image Source="Assets\page_white_gear.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Initialize" Command="{Binding MainViewModel.InitializeCommand}">
+                                    <MenuItem.Icon>
+                                        <Image Source="Assets\page_white_star.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
                             </ContextMenu>
                         </Setter.Value>
                     </Setter>
