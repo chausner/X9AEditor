@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using X9AEditor.ViewModels;
@@ -12,11 +12,14 @@ public partial class MainWindow : Window
 {
     readonly MainViewModel viewModel = new();
 
-    public MainWindow()
+    public MainWindow(string? initialFilePath = null)
     {
         InitializeComponent();
 
         DataContext = viewModel;
+
+        if (initialFilePath != null)
+            viewModel.OpenCommand.Execute(initialFilePath);        
     }
 
     private void Window_Drop(object sender, DragEventArgs e)
