@@ -21,7 +21,7 @@ This tool provides a faster way to rename, reorder and merge voices from one or 
 1. Extract the ZIP archive to a folder of your choice and run `X9AEditor.exe`.
 
 ## Usage
-![Screenshot](screenshot.png)
+<img src="screenshot.png" alt="Screenshot" width="586" />
 
 Usage should be largely self-explanatory. To merge multiple X9A files, open each in a separate instance of the tool. You can then select and copy voices in one instance and paste them into the other.
 
