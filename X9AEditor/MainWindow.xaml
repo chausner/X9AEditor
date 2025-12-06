@@ -16,52 +16,29 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
             <MenuItem Header="File">
-                <MenuItem Header="Open..." Command="{Binding OpenCommand}"/>
+                <MenuItem Header="Open..." Command="{Binding OpenCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_OpenFile}"/>
                 <Separator/>
-                <MenuItem Header="Save" Command="{Binding SaveCommand}"/>
-                <MenuItem Header="Save as..." Command="{Binding SaveAsCommand}"/>
+                <MenuItem Header="Save" Command="{Binding SaveCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_Save}"/>
+                <MenuItem Header="Save as..." Command="{Binding SaveAsCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_SaveAs}"/>
                 <Separator/>
                 <MenuItem Header="Close" Command="{Binding CloseCommand}"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="GitHub" Command="{Binding GitHubCommand}"/>
-                <MenuItem Header="About..." Command="{Binding AboutCommand}"/>
+                <MenuItem Header="About..." Command="{Binding AboutCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_StatusInformation}"/>
             </MenuItem>
         </Menu>
         <ToolBarTray Grid.Row="1" Background="White">
             <ToolBar>
-                <Button Command="{Binding CopyCommand}" ToolTip="Copy">
-                    <Image Source="Assets\page_white_copy.png" />
-                </Button>
-                <Button Command="{Binding PasteCommand}" ToolTip="Paste">
-                    <Image Source="Assets\page_white_paste.png" />
-                </Button>
+                <Button Command="{Binding CopyCommand}" ToolTip="Copy" Content="{StaticResource VisualStudio2022ImageLibrary_Copy}"/>
+                <Button Command="{Binding PasteCommand}" ToolTip="Paste" Content="{StaticResource VisualStudio2022ImageLibrary_Paste}"/>
                 <Separator/>
-                <Button Command="{Binding MoveUpCommand}" ToolTip="Move up">
-                    <Image Source="Assets\arrow_up.png" />
-                </Button>
-                <Button Command="{Binding MoveDownCommand}" ToolTip="Move down">
-                    <Image Source="Assets\arrow_down.png" />
-                </Button>
+                <Button Command="{Binding MoveUpCommand}" ToolTip="Move up" Content="{StaticResource VisualStudio2022ImageLibrary_MoveUp}"/>
+                <Button Command="{Binding MoveDownCommand}" ToolTip="Move down" Content="{StaticResource VisualStudio2022ImageLibrary_MoveDown}"/>
                 <Separator/>
-                <Button Command="{Binding UndoChangesCommand}" ToolTip="Undo changes">
-                    <Image Source="Assets\arrow_undo.png" />
-                </Button>
-                <Button Command="{Binding ResetToFactorySettingCommand}" ToolTip="Reset to factory setting">
-                    <Image Source="Assets\page_white_gear.png" />
-                </Button>
-                <Button Command="{Binding InitializeCommand}" ToolTip="Initialize">
-                    <Image Source="Assets\page_white_star.png" />
-                </Button>
-                <!--<Button Command="{Binding CopyCommand}" ToolTip="Copy" Content="{StaticResource IconCopy}"/>
-                <Button Command="{Binding PasteCommand}" ToolTip="Paste" Content="{StaticResource IconPaste}"/>
-                <Separator/>
-                <Button Command="{Binding MoveUpCommand}" ToolTip="Move up" Content="{StaticResource IconGlyphUp}"/>
-                <Button Command="{Binding MoveDownCommand}" ToolTip="Move down" Content="{StaticResource IconGlyphDown}"/>
-                <Separator/>
-                <Button Command="{Binding UndoChangesCommand}" ToolTip="Undo changes" Content="{StaticResource IconUndo}"/>
-                <Button Command="{Binding ResetToFactorySettingCommand}" ToolTip="Reset to factory setting" Content="{StaticResource IconSettingsFile}"/>
-                <Button Command="{Binding InitializeCommand}" ToolTip="Initialize" Content="{StaticResource IconBlankFile}"/>-->
+                <Button Command="{Binding UndoChangesCommand}" ToolTip="Undo changes" Content="{StaticResource VisualStudio2022ImageLibrary_Undo}"/>
+                <Button Command="{Binding ResetToFactorySettingCommand}" ToolTip="Reset to factory setting" Content="{StaticResource VisualStudio2022ImageLibrary_Settings}"/>
+                <Button Command="{Binding InitializeCommand}" ToolTip="Initialize" Content="{StaticResource VisualStudio2022ImageLibrary_Delete}"/>
             </ToolBar>
         </ToolBarTray>
         <DataGrid Name="dataGrid" Grid.Row="2" ItemsSource="{Binding Voices}" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" GridLinesVisibility="None" 
@@ -71,43 +48,15 @@
                     <Setter Property="ContextMenu">
                         <Setter.Value>
                             <ContextMenu>
-                                <MenuItem Header="Copy" Command="{Binding MainViewModel.CopyCommand}" InputGestureText="Ctrl+C">
-                                    <MenuItem.Icon>
-                                        <Image Source="Assets\page_white_copy.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Paste" Command="{Binding MainViewModel.PasteCommand}" InputGestureText="Ctrl+V">
-                                    <MenuItem.Icon>
-                                        <Image Source="Assets\page_white_paste.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
+                                <MenuItem Header="Copy" Command="{Binding MainViewModel.CopyCommand}" InputGestureText="Ctrl+C" Icon="{StaticResource VisualStudio2022ImageLibrary_Copy}"/>
+                                <MenuItem Header="Paste" Command="{Binding MainViewModel.PasteCommand}" InputGestureText="Ctrl+V" Icon="{StaticResource VisualStudio2022ImageLibrary_Paste}"/>
                                 <Separator/>
-                                <MenuItem Header="Move up" Command="{Binding MainViewModel.MoveUpCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="Assets\arrow_up.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Move down" Command="{Binding MainViewModel.MoveDownCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="Assets\arrow_down.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
+                                <MenuItem Header="Move up" Command="{Binding MainViewModel.MoveUpCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_MoveUp}"/>
+                                <MenuItem Header="Move down" Command="{Binding MainViewModel.MoveDownCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_MoveDown}"/>
                                 <Separator/>
-                                <MenuItem Header="Undo changes" Command="{Binding MainViewModel.UndoChangesCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="Assets\arrow_undo.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Reset to factory setting" Command="{Binding MainViewModel.ResetToFactorySettingCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="Assets\page_white_gear.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Initialize" Command="{Binding MainViewModel.InitializeCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="Assets\page_white_star.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
+                                <MenuItem Header="Undo changes" Command="{Binding MainViewModel.UndoChangesCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_Undo}"/>
+                                <MenuItem Header="Reset to factory setting" Command="{Binding MainViewModel.ResetToFactorySettingCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_Settings}"/>
+                                <MenuItem Header="Initialize" Command="{Binding MainViewModel.InitializeCommand}" Icon="{StaticResource VisualStudio2022ImageLibrary_Delete}"/>
                             </ContextMenu>
                         </Setter.Value>
                     </Setter>

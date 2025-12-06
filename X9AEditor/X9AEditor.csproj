@@ -14,14 +14,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Assets\arrow_down.png" />
-	  <None Remove="Assets\arrow_undo.png" />
-	  <None Remove="Assets\arrow_up.png" />
 	  <None Remove="Assets\FactorySetting-2.00.X9A" />
-	  <None Remove="Assets\page_white_copy.png" />
-	  <None Remove="Assets\page_white_gear.png" />
-	  <None Remove="Assets\page_white_paste.png" />
-	  <None Remove="Assets\page_white_star.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,14 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="Assets\arrow_down.png" />
-	  <Resource Include="Assets\arrow_undo.png" />
-	  <Resource Include="Assets\arrow_up.png" />
 	  <Resource Include="Assets\FactorySetting-2.00.X9A" />
-	  <Resource Include="Assets\page_white_copy.png" />
-	  <Resource Include="Assets\page_white_gear.png" />
-	  <Resource Include="Assets\page_white_paste.png" />
-	  <Resource Include="Assets\page_white_star.png" />
 	</ItemGroup>
 
 </Project>

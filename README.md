@@ -31,5 +31,3 @@ See also https://gist.github.com/arachsys/2883877 for documentation on an older 
 
 ## License
 MIT, see [LICENSE.md](LICENSE.md)
-
-Uses parts of the [Silk icon set](http://www.famfamfam.com/lab/icons/silk/).
