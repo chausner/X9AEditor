@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:X9AEditor"
         mc:Ignorable="d"
         Title="{Binding LoadedFilePath, StringFormat=X9A Editor - {0}, TargetNullValue=X9A Editor}"
-        Width="600" Height="450"
+        Width="600" Height="450" MinWidth="400" MinHeight="200" WindowStartupLocation="CenterScreen"
         AllowDrop="True" Drop="Window_Drop" PreviewDragOver="Window_PreviewDragOver">
     <Grid>
         <Grid.RowDefinitions>
