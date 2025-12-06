@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Windows;
-using Microsoft.Win32;
-using Ookii.Dialogs.Wpf;
 
 namespace X9AEditor.ViewModels;
 
@@ -252,15 +253,17 @@ class MainViewModel : ViewModel
     {
         X9aFile.Voice[] voices = SelectedVoices.OrderBy(voice => voice.Index).Select(v => v.Voice).ToArray();
 
-        Clipboard.SetData("X9AVoice", voices);
+        string serializedVoices = JsonSerializer.Serialize(voices, new JsonSerializerOptions() { IncludeFields = true });
+
+        Clipboard.SetData("X9AVoice", serializedVoices);
     }
 
     private void ExecutePasteCommand()
     {
-        X9aFile.Voice[]? voices = Clipboard.GetData("X9AVoice") as X9aFile.Voice[];
-
-        if (voices == null)
+        if (!Clipboard.TryGetData<string>("X9AVoice", out var serializedVoices))
             return;
+
+        X9aFile.Voice[] voices = JsonSerializer.Deserialize<X9aFile.Voice[]>(serializedVoices, new JsonSerializerOptions() { IncludeFields = true })!;
 
         VoiceViewModel? firstSelectedVoice = SelectedVoices.OrderBy(voice => voice.Index).FirstOrDefault();
 
