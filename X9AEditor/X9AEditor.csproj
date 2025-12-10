@@ -11,6 +11,7 @@
 		<Authors>Christoph Hausner</Authors>
 		<Version>1.3.0</Version>
 		<ApplicationIcon>X9AEditor.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 
 	<ItemGroup>

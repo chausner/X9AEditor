@@ -10,11 +10,13 @@ namespace X9AEditor;
 /// </summary>
 public partial class MainWindow : Window
 {
-    readonly MainViewModel viewModel = new();
+    readonly MainViewModel viewModel;
 
     public MainWindow(string? initialFilePath = null)
     {
         InitializeComponent();
+
+        viewModel = new(this);
 
         DataContext = viewModel;
 

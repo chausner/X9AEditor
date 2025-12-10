@@ -40,6 +40,15 @@
                 <Button Command="{Binding ResetToFactorySettingCommand}" ToolTip="Reset to factory setting" Content="{StaticResource VisualStudio2022ImageLibrary_Settings}"/>
                 <Button Command="{Binding InitializeCommand}" ToolTip="Initialize" Content="{StaticResource VisualStudio2022ImageLibrary_Delete}"/>
             </ToolBar>
+            <ToolBar>
+                <ContentPresenter Content="{StaticResource VisualStudio2022ImageLibrary_Search}"/>
+                <TextBlock Text="Search:" VerticalAlignment="Center" Margin="4,0,6,0"/>
+                <TextBox Name="searchTextBox" Width="200">
+                    <TextBox.InputBindings>
+                        <KeyBinding Command="{Binding SearchCommand}" CommandParameter="{Binding Text, ElementName=searchTextBox}" Key="Enter"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+            </ToolBar>
         </ToolBarTray>
         <DataGrid Name="dataGrid" Grid.Row="2" ItemsSource="{Binding Voices}" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" GridLinesVisibility="None" 
                   CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeRows="False">

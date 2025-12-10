@@ -14,8 +14,12 @@ namespace X9AEditor.ViewModels;
 
 class MainViewModel : ViewModel
 {
+    MainWindow mainWindow;
     string? loadedFilePath;
     X9aFile? x9aFile;
+
+    string? lastSearchTerm;
+    int? lastMatchIndex;
 
     public ObservableCollection<VoiceViewModel> Voices { get; }
 
@@ -36,6 +40,8 @@ class MainViewModel : ViewModel
     public RelayCommand ResetToFactorySettingCommand { get; }
     public RelayCommand InitializeCommand { get; }
 
+    public RelayCommand<string> SearchCommand { get; }
+
     public RelayCommand GitHubCommand { get; }
     public RelayCommand AboutCommand { get; }
 
@@ -49,8 +55,9 @@ class MainViewModel : ViewModel
 
     public X9aFile? X9aFile => x9aFile;
 
-    public MainViewModel()
+    public MainViewModel(MainWindow mainWindow)
     {
+        this.mainWindow = mainWindow;
         Voices = new ObservableCollection<VoiceViewModel>();
         SelectedVoices = Array.Empty<VoiceViewModel>();
 
@@ -68,6 +75,8 @@ class MainViewModel : ViewModel
         UndoChangesCommand = new RelayCommand(ExecuteUndoChangesCommand, () => SelectedVoices.Count > 0);
         ResetToFactorySettingCommand = new RelayCommand(ExecuteResetToFactorySettingCommand, () => SelectedVoices.Count > 0);
         InitializeCommand = new RelayCommand(ExecuteInitializeCommand, () => SelectedVoices.Count > 0);
+
+        SearchCommand = new RelayCommand<string>(ExecuteSearchCommand!, _ => IsFileLoaded);
 
         GitHubCommand = new RelayCommand(ExecuteGitHubCommand);
         AboutCommand = new RelayCommand(ExecuteAboutCommand);
@@ -114,6 +123,9 @@ class MainViewModel : ViewModel
         }
 
         LoadedFilePath = path;
+
+        lastSearchTerm = null;
+        lastMatchIndex = null;
 
         Voices.Clear();
         for (int i = 0; i < x9aFile.Voices.Length; i++)
@@ -321,5 +333,47 @@ class MainViewModel : ViewModel
         taskDialog.HyperlinkClicked += (sender, e) => Process.Start(new ProcessStartInfo(e.Href) { UseShellExecute = true });
 
         taskDialog.ShowDialog();
+    }
+
+    private void ExecuteSearchCommand(string searchTerm)
+    {
+        searchTerm = searchTerm.Trim();
+
+        if (searchTerm.Length == 0)
+            return;
+
+        if (!string.Equals(searchTerm, lastSearchTerm, StringComparison.OrdinalIgnoreCase))
+            lastMatchIndex = null;
+
+        lastSearchTerm = searchTerm;
+
+        int? matchIndex = FindNextVoiceByName(searchTerm, ((lastMatchIndex ?? -1) + 1) % Voices.Count);
+
+        lastMatchIndex = matchIndex;
+
+        if (matchIndex != null)
+        {
+            VoiceViewModel match = Voices[matchIndex.Value];
+
+            mainWindow.dataGrid.SelectedItem = match;
+            mainWindow.dataGrid.ScrollIntoView(match);
+        }
+        else
+        {
+            MessageBox.Show($"No voice matches \"{searchTerm}\".", "Search", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        int? FindNextVoiceByName(string searchTerm, int startIndex)
+        {
+            for (int offset = 0; offset < Voices.Count; offset++)
+            {
+                int index = (startIndex + offset) % Voices.Count;
+
+                if (Voices[index].Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    return index;
+            }
+
+            return null;
+        }
     }
 }
