@@ -31,6 +31,7 @@ class VoiceViewModel : ViewModel
             SetProperty(ref liveSetPage, value);
             InvokePropertyChanged(nameof(IsChanged));
             InvokePropertyChanged(nameof(IsFactorySetting));
+            InvokePropertyChanged(nameof(HasLiveSetPageDividerAbove));
         }
     }
 
@@ -43,6 +44,7 @@ class VoiceViewModel : ViewModel
             SetProperty(ref liveSetIndex, value);
             InvokePropertyChanged(nameof(IsChanged));
             InvokePropertyChanged(nameof(IsFactorySetting));
+            InvokePropertyChanged(nameof(HasLiveSetPageDividerAbove));
         }
     }
 
@@ -95,6 +97,8 @@ class VoiceViewModel : ViewModel
     public bool IsFactorySetting => Voice.Equals(FactorySetting.Instance.Voices[Index]);
 
     public int Index => (LiveSetPage - 1) * 8 + (LiveSetIndex - 1);
+
+    public bool HasLiveSetPageDividerAbove => LiveSetIndex == 1 && LiveSetPage > 1;
 
     private void ExecuteUndoChangesCommand()
     {

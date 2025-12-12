@@ -85,6 +85,10 @@
                         <DataTrigger Binding="{Binding IsFactorySetting}" Value="False">
                             <Setter Property="FontWeight" Value="Bold"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding HasLiveSetPageDividerAbove}" Value="True">
+                            <Setter Property="BorderThickness" Value="0,1,0,0"/>
+                            <Setter Property="BorderBrush" Value="#CDCDCD"/>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
