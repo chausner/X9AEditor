@@ -43,7 +43,7 @@
             <ToolBar>
                 <ContentPresenter Content="{StaticResource VisualStudio2022ImageLibrary_Search}"/>
                 <TextBlock Text="Search:" VerticalAlignment="Center" Margin="4,0,6,0"/>
-                <TextBox Name="searchTextBox" Width="200">
+                <TextBox Name="searchTextBox" Width="200" IsEnabled="{Binding IsFileLoaded}">
                     <TextBox.InputBindings>
                         <KeyBinding Command="{Binding SearchCommand}" CommandParameter="{Binding Text, ElementName=searchTextBox}" Key="Enter"/>
                     </TextBox.InputBindings>

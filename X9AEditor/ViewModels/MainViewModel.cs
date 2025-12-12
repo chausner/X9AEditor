@@ -15,6 +15,7 @@ namespace X9AEditor.ViewModels;
 class MainViewModel : ViewModel
 {
     MainWindow mainWindow;
+    bool isFileLoaded;
     string? loadedFilePath;
     X9aFile? x9aFile;
 
@@ -45,7 +46,11 @@ class MainViewModel : ViewModel
     public RelayCommand GitHubCommand { get; }
     public RelayCommand AboutCommand { get; }
 
-    private bool IsFileLoaded => x9aFile != null;
+    public bool IsFileLoaded
+    {
+        get => isFileLoaded;
+        set => SetProperty(ref isFileLoaded, value);
+    }
 
     public string? LoadedFilePath
     {
@@ -122,6 +127,7 @@ class MainViewModel : ViewModel
             return;
         }
 
+        IsFileLoaded = true;
         LoadedFilePath = path;
 
         lastSearchTerm = null;
