@@ -82,6 +82,9 @@
                         <DataTrigger Binding="{Binding IsInitSound}" Value="True">
                             <Setter Property="Foreground" Value="DarkGray"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding IsFactorySetting}" Value="False">
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
@@ -99,8 +102,6 @@
                         </Style>
                     </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
-                <!--<DataGridTextColumn Header="IsChanged" Binding="{Binding IsChanged, Mode=OneWay}"/>
-                <DataGridTextColumn Header="IsFactorySetting" Binding="{Binding IsFactorySetting, Mode=OneWay}"/>-->
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
